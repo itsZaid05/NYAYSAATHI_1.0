@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NyaySaathi - AI-Powered Legal Companion</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading NyaySaathi...</div>
+    </div>
+
+    <!-- Login/Welcome Page -->
+    <div id="login-page" class="page active">
+        <div class="hero-section">
+            <div class="particles-bg"></div>
+            <div class="hero-content">
+                <div class="logo-section">
+                    <h1 class="app-logo">NyaySaathi</h1>
+                    <p class="app-tagline">Compassionate AI bridge to legal clarity</p>
+                </div>
+                
+                <div class="role-cards">
+                    <div class="role-card glass-card" data-role="user">
+                        <i class="fas fa-user-shield role-icon"></i>
+                        <h3>User/Seeker</h3>
+                        <p>Get confidential legal guidance</p>
+                    </div>
+                    <div class="role-card glass-card" data-role="lawyer">
+                        <i class="fas fa-balance-scale role-icon"></i>
+                        <h3>Lawyer</h3>
+                        <p>Connect with clients in need</p>
+                    </div>
+                </div>
+                
+                <div class="quick-actions">
+                    <button class="btn btn-demo" onclick="startDemo()">Quick Demo</button>
+                </div>
+                
+                <div class="privacy-footer">
+                    <p><i class="fas fa-shield-alt"></i> Your privacy is our priority. No personal details required to start.</p>
+                    <div class="language-toggle">
+                        <button class="lang-btn active" data-lang="en">English</button>
+                        <button class="lang-btn" data-lang="hi">हिंदी</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="main-app" class="main-app hidden">
+        <!-- Sidebar -->
+        <nav class="sidebar glass-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2 class="sidebar-logo">NyaySaathi</h2>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <svg width="20" height="20" viewBox="0 0 64 64" fill="currentColor" style="display: inline-block; vertical-align: middle;">
+                        <path d="M32 8 L28 20 L16 20 L26 28 L22 40 L32 32 L42 40 L38 28 L48 20 L36 20 Z M8 50 h48 M12 54 h40"/>
+                    </svg>
+                    <span class="nav-label" style="margin-left: 8px;">Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-page="intake">
+                    <i class="fas fa-comments"></i>
+                    <span class="nav-label">Intake</span>
+                </a>
+                <a href="#" class="nav-item" data-page="story-mode">
+                    <i class="fas fa-book-open"></i>
+                    <span class="nav-label">Story Mode</span>
+                </a>
+                <a href="#" class="nav-item" data-page="case-summary">
+                    <svg width="20" height="20" viewBox="0 0 64 64" fill="currentColor" style="display: inline-block; vertical-align: middle;">
+                        <rect x="20" y="8" width="24" height="48" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <line x1="26" y1="16" x2="38" y2="16" stroke="currentColor" stroke-width="2"/>
+                        <line x1="26" y1="24" x2="38" y2="24" stroke="currentColor" stroke-width="2"/>
+                        <line x1="26" y1="32" x2="38" y2="32" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <span class="nav-label" style="margin-left: 8px;">Case Summary</span>
+                </a>
+                <a href="#" class="nav-item" data-page="marketplace">
+                    <svg width="20" height="20" viewBox="0 0 64 64" fill="currentColor" style="display: inline-block; vertical-align: middle;">
+                        <path d="M32 8l24 16H8zM16 24h4v24h-4zM26 24h4v24h-4zM36 24h4v24h-4zM46 24h4v24h-4z"/>
+                        <rect x="8" y="48" width="48" height="6"/>
+                    </svg>
+                    <span class="nav-label" style="margin-left: 8px;">Lawyers</span>
+                </a>
+                <a href="#" class="nav-item" data-page="documents">
+                    <i class="fas fa-folder"></i>
+                    <span class="nav-label">Documents</span>
+                </a>
+                <a href="#" class="nav-item" data-page="analytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="nav-label">Analytics</span>
+                </a>
+                <a href="#" class="nav-item" data-page="ai-insights">
+                    <i class="fas fa-robot"></i>
+                    <span class="nav-label">AI Insights</span>
+                </a>
+                <a href="#" class="nav-item" data-page="policies">
+                    <svg width="20" height="20" viewBox="0 0 64 64" fill="currentColor" style="display: inline-block; vertical-align: middle;">
+                        <path d="M32 8l16 4v16c0 12-8 20-16 28-8-8-16-16-16-28V12z"/>
+                    </svg>
+                    <span class="nav-label" style="margin-left: 8px;">Policies</span>
+                </a>
+                <a href="#" class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i>
+                    <span class="nav-label">Settings</span>
+                </a>
+                <a href="#" class="nav-item" data-page="help">
+                    <i class="fas fa-question-circle"></i>
+                    <span class="nav-label">Help</span>
+                </a>
+            </div>
+        </nav>
+
+
+
+        <!-- Main Content Area -->
+        <main class="main-content" id="main-content">
+            <!-- Legal Theme Background Overlay -->
+            <div class="legal-bg-overlay"></div>
+            <!-- Dashboard Page -->
+            <div class="page-content" id="dashboard-page" style="position: relative; z-index: 1;">
+                <div class="page-header">
+                    <div style="display: flex; align-items: center; gap: var(--space-md);">
+                        <svg width="40" height="40" viewBox="0 0 64 64" fill="#5A31F4" opacity="0.8">
+                            <path d="M32 8 L28 20 L16 20 L26 28 L22 40 L32 32 L42 40 L38 28 L48 20 L36 20 Z"/>
+                            <rect x="8" y="50" width="48" height="2"/>
+                            <rect x="12" y="54" width="40" height="2"/>
+                        </svg>
+                        <div>
+                            <h1>Dashboard</h1>
+                            <p>Overview of your legal journey</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="widget-grid" id="widget-grid">
+                    <!-- Case Status Widget -->
+                    <div class="widget glass-card" data-widget="case-status">
+                        <div class="widget-header">
+                            <h3>Case Status</h3>
+                            <div class="widget-menu">
+                                <button class="widget-menu-btn" onclick="toggleWidgetMenu('case-status')">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="widget-menu-dropdown hidden">
+                                    <a href="#" onclick="exportWidget('case-status', 'csv')">Export CSV</a>
+                                    <a href="#" onclick="exportWidget('case-status', 'pdf')">Export PDF</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <div class="radial-progress">
+                                <div class="progress-ring" data-progress="75">
+                                    <svg class="progress-svg" width="120" height="120">
+                                        <circle cx="60" cy="60" r="50" class="progress-circle-bg"></circle>
+                                        <circle cx="60" cy="60" r="50" class="progress-circle-fill"></circle>
+                                    </svg>
+                                    <div class="progress-text">
+                                        <span class="progress-value">75%</span>
+                                        <span class="progress-label">Complete</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Next Steps Widget -->
+                    <div class="widget glass-card" data-widget="next-steps">
+                        <div class="widget-header">
+                            <h3>Next Steps</h3>
+                            <div class="widget-menu">
+                                <button class="widget-menu-btn" onclick="toggleWidgetMenu('next-steps')">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="widget-menu-dropdown hidden">
+                                    <a href="#" onclick="exportWidget('next-steps', 'csv')">Export CSV</a>
+                                    <a href="#" onclick="exportWidget('next-steps', 'pdf')">Export PDF</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <div class="checklist">
+                                <div class="checklist-item completed">
+                                    <input type="checkbox" checked disabled>
+                                    <span>Review case summary</span>
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" disabled>
+                                    <span>Upload supporting documents</span>
+                                    <i class="fas fa-circle"></i>
+                                </div>
+                                <div class="checklist-item">
+                                    <input type="checkbox" disabled>
+                                    <span>Select a lawyer</span>
+                                    <i class="fas fa-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Document Progress Widget -->
+                    <div class="widget glass-card" data-widget="documents">
+                        <div class="widget-header">
+                            <h3>Document Progress</h3>
+                            <div class="widget-menu">
+                                <button class="widget-menu-btn" onclick="toggleWidgetMenu('documents')">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="widget-menu-dropdown hidden">
+                                    <a href="#" onclick="exportWidget('documents', 'csv')">Export CSV</a>
+                                    <a href="#" onclick="exportWidget('documents', 'pdf')">Export PDF</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <div class="progress-bars">
+                                <div class="progress-item">
+                                    <span class="progress-item-label">Uploaded</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 60%"></div>
+                                    </div>
+                                    <span class="progress-item-value">3/5</span>
+                                </div>
+                                <div class="progress-item">
+                                    <span class="progress-item-label">Processed</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 40%"></div>
+                                    </div>
+                                    <span class="progress-item-value">2/5</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Widget -->
+                    <div class="widget glass-card widget-large" data-widget="lawyer-response">
+                        <div class="widget-header">
+                            <h3>Lawyer Response Time</h3>
+                            <div class="widget-menu">
+                                <button class="widget-menu-btn" onclick="toggleWidgetMenu('lawyer-response')">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="widget-menu-dropdown hidden">
+                                    <a href="#" onclick="exportWidget('lawyer-response', 'csv')">Export CSV</a>
+                                    <a href="#" onclick="exportWidget('lawyer-response', 'pdf')">Export PDF</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <canvas id="responseTimeChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Risk Assessment Widget -->
+                    <div class="widget glass-card" data-widget="risk-assessment">
+                        <div class="widget-header">
+                            <h3>Risk Assessment</h3>
+                            <div class="widget-menu">
+                                <button class="widget-menu-btn" onclick="toggleWidgetMenu('risk-assessment')">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="widget-menu-dropdown hidden">
+                                    <a href="#" onclick="exportWidget('risk-assessment', 'csv')">Export CSV</a>
+                                    <a href="#" onclick="exportWidget('risk-assessment', 'pdf')">Export PDF</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <div class="risk-gauge">
+                                <div class="gauge-container">
+                                    <div class="gauge-meter" data-value="55">
+                                        <div class="gauge-needle"></div>
+                                    </div>
+                                    <div class="gauge-labels">
+                                        <span class="gauge-label low">Low</span>
+                                        <span class="gauge-label medium">Medium</span>
+                                        <span class="gauge-label high">High</span>
+                                    </div>
+                                </div>
+                                <div class="risk-factors">
+                                    <div class="risk-factor">Opposition strength</div>
+                                    <div class="risk-factor">Evidence quality</div>
+                                    <div class="risk-factor">Timeline urgency</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Heatmap Widget -->
+                    <div class="widget glass-card widget-large" data-widget="topic-heatmap">
+                        <div class="widget-header">
+                            <h3>Legal Topic Heatmap</h3>
+                            <div class="widget-menu">
+                                <button class="widget-menu-btn" onclick="toggleWidgetMenu('topic-heatmap')">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="widget-menu-dropdown hidden">
+                                    <a href="#" onclick="exportWidget('topic-heatmap', 'csv')">Export CSV</a>
+                                    <a href="#" onclick="exportWidget('topic-heatmap', 'pdf')">Export PDF</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="widget-content">
+                            <div class="heatmap-grid">
+                                <div class="heatmap-cell" data-intensity="32" title="Family Law - 32%">Family</div>
+                                <div class="heatmap-cell" data-intensity="24" title="Consumer - 24%">Consumer</div>
+                                <div class="heatmap-cell" data-intensity="18" title="Workplace - 18%">Workplace</div>
+                                <div class="heatmap-cell" data-intensity="15" title="Property - 15%">Property</div>
+                                <div class="heatmap-cell" data-intensity="11" title="Criminal - 11%">Criminal</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-actions-fab">
+                    <button class="fab-main" onclick="toggleFAB()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="fab-actions hidden">
+                        <button class="fab-action" onclick="navigateTo('intake'); toggleFAB();" title="Continue Case Building">
+                            <i class="fas fa-comments"></i>
+                        </button>
+                        <button class="fab-action" onclick="showUploadModal(); toggleFAB();" title="Upload Documents">
+                            <i class="fas fa-upload"></i>
+                        </button>
+                        <button class="fab-action" onclick="navigateTo('marketplace'); toggleFAB();" title="Find Lawyer">
+                            <i class="fas fa-users"></i>
+                        </button>
+                        <button class="fab-action" onclick="navigateTo('story-mode'); toggleFAB();" title="View Legal Stories">
+                            <i class="fas fa-book-open"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Add Widget Button -->
+                <button class="btn btn-secondary" onclick="showAddWidgetModal()" style="position: fixed; bottom: 120px; right: 32px; z-index: 100; border-radius: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                    <i class="fas fa-plus-circle"></i> Add Widget
+                </button>
+            </div>
+
+            <!-- Intake Page -->
+            <div class="page-content hidden" id="intake-page" style="position: relative; z-index: 1;">
+                <div class="intake-hero">
+                    <h1>Get confidential legal guidance without judgment</h1>
+                    <p>Your privacy and security are our top priority</p>
+                </div>
+                
+                <div class="quick-action-cards">
+                    <div class="action-card glass-card" onclick="startIntake()" style="cursor: pointer;">
+                        <svg width="60" height="60" viewBox="0 0 64 64" style="margin-bottom: 16px;">
+                            <path d="M32 8v48M20 24h24M12 40l8-16 8 16zM36 40l8-16 8 16z" stroke="#5A31F4" stroke-width="2" fill="none"/>
+                            <circle cx="20" cy="40" r="2" fill="#5A31F4"/>
+                            <circle cx="44" cy="40" r="2" fill="#5A31F4"/>
+                        </svg>
+                        <h3>Start Confidential Chat</h3>
+                        <p>Begin your legal journey with AI guidance</p>
+                    </div>
+                    <div class="action-card glass-card" onclick="navigateTo('story-mode')" style="cursor: pointer;">
+                        <svg width="60" height="60" viewBox="0 0 64 64" style="margin-bottom: 16px;">
+                            <rect x="16" y="12" width="32" height="42" rx="2" fill="#00D1C1" opacity="0.8"/>
+                            <path d="M20 20h24M20 28h24M20 36h16" stroke="white" stroke-width="2"/>
+                        </svg>
+                        <h3>Browse Legal Stories</h3>
+                        <p>Learn from similar cases and outcomes</p>
+                    </div>
+                    <div class="action-card glass-card" onclick="navigateTo('marketplace')" style="cursor: pointer;">
+                        <svg width="60" height="60" viewBox="0 0 64 64" style="margin-bottom: 16px;">
+                            <path d="M32 8l24 16H8zM16 24h4v24h-4zM26 24h4v24h-4zM36 24h4v24h-4zM46 24h4v24h-4z" fill="#FF6B6B" opacity="0.8"/>
+                            <rect x="8" y="48" width="48" height="6" fill="#FF6B6B"/>
+                        </svg>
+                        <h3>Find a Lawyer</h3>
+                        <p>Connect directly with legal professionals</p>
+                    </div>
+                </div>
+
+                <div class="intake-interface hidden" id="intake-interface">
+                    <div class="chat-container glass-card">
+                        <div class="chat-header">
+                            <div class="ai-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="chat-info">
+                                <h4>NyaySaathi AI Assistant</h4>
+                                <span class="status online">Online</span>
+                            </div>
+                            <div class="progress-indicator">
+                                <div class="progress-ring-small" data-progress="0">
+                                    <svg width="40" height="40">
+                                        <circle cx="20" cy="20" r="16" class="progress-circle-bg"></circle>
+                                        <circle cx="20" cy="20" r="16" class="progress-circle-fill"></circle>
+                                    </svg>
+                                    <span class="progress-text-small">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="message ai-message">
+                                <div class="message-content">
+                                    <p>Hello! I'm here to help you understand your legal situation. Everything you share is confidential and secure. Let's start with some basic information.</p>
+                                </div>
+                                <div class="message-time">Just now</div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input-area">
+                            <div class="typing-indicator hidden">
+                                <div class="typing-dots">
+                                    <span></span><span></span><span></span>
+                                </div>
+                                <span>AI is typing...</span>
+                            </div>
+                            
+                            <div class="input-controls">
+                                <button class="voice-btn" onclick="toggleVoiceInput()">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <div class="input-wrapper">
+                                    <input type="text" id="chat-input" placeholder="Type your response..." onkeypress="handleChatInput(event)">
+                                </div>
+                                <button class="send-btn" onclick="sendMessage()">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="emergency-sidebar glass-card">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Emergency Resources</h4>
+                        <div class="emergency-contact">
+                            <strong>Police:</strong> 100
+                        </div>
+                        <div class="emergency-contact">
+                            <strong>Women Helpline:</strong> 1091
+                        </div>
+                        <div class="emergency-contact">
+                            <strong>Cyber Crime:</strong> 1930
+                        </div>
+                        <div class="privacy-reminder">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Your conversation is encrypted and private</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Case Summary Page -->
+            <div class="page-content hidden" id="case-summary-page" style="position: relative; z-index: 1;">
+                <div class="page-header">
+                    <div style="display: flex; align-items: center; gap: var(--space-md);">
+                        <svg width="40" height="40" viewBox="0 0 64 64" fill="#00D1C1" opacity="0.8">
+                            <rect x="20" y="8" width="24" height="48" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <line x1="26" y1="16" x2="38" y2="16" stroke="currentColor" stroke-width="2"/>
+                            <line x1="26" y1="24" x2="38" y2="24" stroke="currentColor" stroke-width="2"/>
+                            <line x1="26" y1="32" x2="38" y2="32" stroke="currentColor" stroke-width="2"/>
+                            <line x1="26" y1="40" x2="34" y2="40" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        <div>
+                            <h1>Case Summary</h1>
+                            <p>Professional document summary of your legal case</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="case-summary-container glass-card">
+                    <div class="case-header">
+                        <div class="case-id-section">
+                            <span class="case-id-badge">Case ID: NS-2025-001</span>
+                            <span class="risk-indicator medium">Medium Risk</span>
+                            <span class="urgency-indicator high">High Urgency</span>
+                        </div>
+                        <div class="case-tags">
+                            <span class="case-tag">Workplace Harassment</span>
+                            <span class="case-tag">POSH Act 2013</span>
+                        </div>
+                    </div>
+                    
+                    <div class="case-tabs">
+                        <button class="tab-btn active" onclick="switchCaseTab('overview')">Overview</button>
+                        <button class="tab-btn" onclick="switchCaseTab('timeline')">Timeline</button>
+                        <button class="tab-btn" onclick="switchCaseTab('legal')">Legal Framework</button>
+                        <button class="tab-btn" onclick="switchCaseTab('goals')">Goals</button>
+                    </div>
+                    
+                    <div class="tab-content">
+                        <div class="tab-panel active" id="overview-panel">
+                            <h3>Case Overview</h3>
+                            <div class="case-facts">
+                                <div class="fact-item">
+                                    <strong>Situation:</strong>
+                                    <p>Workplace harassment by supervisor involving inappropriate comments and behavior over 3-month period.</p>
+                                </div>
+                                <div class="fact-item">
+                                    <strong>Key Parties:</strong>
+                                    <p>Employee (complainant), Supervisor (accused), HR Department, Witnesses (2)</p>
+                                </div>
+                                <div class="fact-item">
+                                    <strong>Evidence Available:</strong>
+                                    <p>Email correspondence, witness statements, incident log, company policies</p>
+                                </div>
+                            </div>
+                            
+                            <div class="quality-indicators">
+                                <div class="quality-item">
+                                    <span class="quality-label">Completeness Score</span>
+                                    <div class="quality-bar">
+                                        <div class="quality-fill" style="width: 85%"></div>
+                                    </div>
+                                    <span class="quality-value">85%</span>
+                                </div>
+                                <div class="quality-alerts">
+                                    <div class="alert-item info">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>Consider obtaining additional witness statements</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-panel" id="timeline-panel">
+                            <h3>Case Timeline</h3>
+                            <div class="timeline-container">
+                                <div class="timeline-event">
+                                    <div class="timeline-date">June 2025</div>
+                                    <div class="timeline-marker"></div>
+                                    <div class="timeline-description">
+                                        <strong>Initial Incidents</strong>
+                                        <p>First reported instances of inappropriate behavior</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-event">
+                                    <div class="timeline-date">August 2025</div>
+                                    <div class="timeline-marker"></div>
+                                    <div class="timeline-description">
+                                        <strong>Documentation Began</strong>
+                                        <p>Started maintaining incident log and collecting evidence</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-event current">
+                                    <div class="timeline-date">October 2025</div>
+                                    <div class="timeline-marker"></div>
+                                    <div class="timeline-description">
+                                        <strong>Legal Consultation</strong>
+                                        <p>Initiated legal guidance process</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-panel" id="legal-panel">
+                            <h3>Legal Framework</h3>
+                            <div class="legal-sections-summary">
+                                <div class="legal-section-item">
+                                    <div class="section-info">
+                                        <h4>POSH Act 2013</h4>
+                                        <p>Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act</p>
+                                        <div class="last-updated">Last updated: 2024-09-01</div>
+                                    </div>
+                                </div>
+                                <div class="legal-section-item">
+                                    <div class="section-info">
+                                        <h4>IPC Section 354A</h4>
+                                        <p>Sexual harassment and punishment for sexual harassment</p>
+                                        <div class="last-updated">Last updated: 2024-08-15</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-panel" id="goals-panel">
+                            <h3>Case Goals &amp; Desired Outcomes</h3>
+                            <div class="goals-list">
+                                <div class="goal-item">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>Immediate protection from harassment</span>
+                                </div>
+                                <div class="goal-item">
+                                    <i class="fas fa-gavel"></i>
+                                    <span>Formal disciplinary action against perpetrator</span>
+                                </div>
+                                <div class="goal-item">
+                                    <i class="fas fa-coins"></i>
+                                    <span>Compensation for mental harassment</span>
+                                </div>
+                                <div class="goal-item">
+                                    <i class="fas fa-clipboard-check"></i>
+                                    <span>Workplace policy improvements</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="case-actions">
+                        <button class="btn btn-secondary" onclick="editCase()">
+                            <i class="fas fa-edit"></i>
+                            Edit Details
+                        </button>
+                        <button class="btn btn-primary" onclick="exportCaseSummary('pdf')">
+                            <i class="fas fa-download"></i>
+                            Download PDF
+                        </button>
+                        <button class="btn btn-primary" onclick="navigateTo('marketplace')">
+                            <i class="fas fa-users"></i>
+                            Find Lawyers
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Marketplace Page -->
+            <div class="page-content hidden" id="marketplace-page" style="position: relative; z-index: 1;">
+                <div class="page-header">
+                    <div style="display: flex; align-items: center; gap: var(--space-md);">
+                        <svg width="40" height="40" viewBox="0 0 64 64" fill="#FF6B6B" opacity="0.8">
+                            <circle cx="32" cy="20" r="8" fill="currentColor"/>
+                            <path d="M32 30 L20 42 L20 54 L44 54 L44 42 Z" fill="currentColor"/>
+                            <rect x="28" y="38" width="8" height="16" fill="white" opacity="0.3"/>
+                        </svg>
+                        <div>
+                            <h1>Lawyer Marketplace</h1>
+                            <p>Connect with qualified legal professionals</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="marketplace-search glass-card">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search lawyers by name, specialization, or location..." class="search-input">
+                        <button class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="search-filters">
+                        <select class="filter-select">
+                            <option>All Specializations</option>
+                            <option>Family Law</option>
+                            <option>Criminal Law</option>
+                            <option>Consumer Rights</option>
+                            <option>Workplace Issues</option>
+                        </select>
+                        
+                        <select class="filter-select">
+                            <option>All Locations</option>
+                            <option>Mumbai</option>
+                            <option>Delhi NCR</option>
+                            <option>Bangalore</option>
+                            <option>Chennai</option>
+                        </select>
+                        
+                        <div class="fee-range">
+                            <label>Fee Range: ₹1000 - ₹5000</label>
+                            <input type="range" min="1000" max="5000" value="3000" class="fee-slider">
+                        </div>
+                        
+                        <label class="availability-toggle">
+                            <input type="checkbox" checked>
+                            <span>Available Now</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="lawyers-grid">
+                    <div class="lawyer-card glass-card">
+                        <div class="lawyer-photo">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='%235A31F4'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Lawyer">
+                            <div class="availability-status online"></div>
+                        </div>
+                        
+                        <div class="lawyer-info">
+                            <h3>Advocate Priya Sharma</h3>
+                            <div class="lawyer-rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span class="rating-value">4.8</span>
+                            </div>
+                            
+                            <div class="specializations">
+                                <span class="spec-tag">Family Law</span>
+                                <span class="spec-tag">Domestic Violence</span>
+                                <span class="spec-tag">Divorce</span>
+                            </div>
+                            
+                            <div class="lawyer-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Mumbai, Maharashtra</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Responds in 2 hours</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-rupee-sign"></i>
+                                    <span>₹2000/consultation</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-trophy"></i>
+                                    <span>156 cases won</span>
+                                </div>
+                            </div>
+                            
+                            <div class="lawyer-languages">
+                                <strong>Languages:</strong> English, Hindi, Marathi
+                            </div>
+                        </div>
+                        
+                        <div class="lawyer-actions">
+                            <button class="btn btn-secondary" onclick="viewLawyerProfile('priya-sharma')">
+                                View Profile
+                            </button>
+                            <button class="btn btn-primary" onclick="connectWithLawyer('priya-sharma')">
+                                Connect Now
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="lawyer-card glass-card">
+                        <div class="lawyer-photo">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='%235A31F4'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Lawyer">
+                            <div class="availability-status online"></div>
+                        </div>
+                        
+                        <div class="lawyer-info">
+                            <h3>Advocate Rajesh Kumar</h3>
+                            <div class="lawyer-rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span class="rating-value">4.9</span>
+                            </div>
+                            
+                            <div class="specializations">
+                                <span class="spec-tag">Criminal Law</span>
+                                <span class="spec-tag">IPC</span>
+                                <span class="spec-tag">CrPC</span>
+                            </div>
+                            
+                            <div class="lawyer-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Delhi NCR</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Responds in 1 hour</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-rupee-sign"></i>
+                                    <span>₹3000/consultation</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-trophy"></i>
+                                    <span>203 cases won</span>
+                                </div>
+                            </div>
+                            
+                            <div class="lawyer-languages">
+                                <strong>Languages:</strong> English, Hindi
+                            </div>
+                        </div>
+                        
+                        <div class="lawyer-actions">
+                            <button class="btn btn-secondary" onclick="viewLawyerProfile('rajesh-kumar')">
+                                View Profile
+                            </button>
+                            <button class="btn btn-primary" onclick="connectWithLawyer('rajesh-kumar')">
+                                Connect Now
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="lawyer-card glass-card offline">
+                        <div class="lawyer-photo">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='%235A31F4'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Lawyer">
+                            <div class="availability-status offline"></div>
+                        </div>
+                        
+                        <div class="lawyer-info">
+                            <h3>Advocate Meena Patel</h3>
+                            <div class="lawyer-rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                                <span class="rating-value">4.7</span>
+                            </div>
+                            
+                            <div class="specializations">
+                                <span class="spec-tag">Consumer Rights</span>
+                                <span class="spec-tag">Property Law</span>
+                                <span class="spec-tag">Civil Matters</span>
+                            </div>
+                            
+                            <div class="lawyer-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Ahmedabad, Gujarat</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Responds in 3 hours</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-rupee-sign"></i>
+                                    <span>₹1500/consultation</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-trophy"></i>
+                                    <span>128 cases won</span>
+                                </div>
+                            </div>
+                            
+                            <div class="lawyer-languages">
+                                <strong>Languages:</strong> English, Hindi, Gujarati
+                            </div>
+                        </div>
+                        
+                        <div class="lawyer-actions">
+                            <button class="btn btn-secondary" onclick="viewLawyerProfile('meena-patel')">
+                                View Profile
+                            </button>
+                            <button class="btn btn-secondary disabled">
+                                Currently Offline
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Documents Page -->
+            <div class="page-content hidden" id="documents-page" style="position: relative; z-index: 1;">
+                <div class="page-header">
+                    <h1>Document Management</h1>
+                    <p>Upload, organize, and manage your case documents</p>
+                </div>
+                
+                <div class="document-upload glass-card">
+                    <div class="upload-area" id="upload-area">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <h3>Drag &amp; Drop Documents</h3>
+                        <p>or click to browse files</p>
+                        <input type="file" id="file-input" multiple hidden>
+                        <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">
+                            Select Files
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="documents-list glass-card">
+                    <div class="list-header">
+                        <h3>Your Documents</h3>
+                        <div class="list-controls">
+                            <button class="btn btn-secondary" onclick="togglePIIRedaction()">
+                                <i class="fas fa-eye-slash"></i>
+                                Toggle PII Redaction
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="documents-table">
+                        <div class="table-header">
+                            <div class="col-name">Document Name</div>
+                            <div class="col-type">Type</div>
+                            <div class="col-date">Upload Date</div>
+                            <div class="col-size">Size</div>
+                            <div class="col-status">Status</div>
+                            <div class="col-actions">Actions</div>
+                        </div>
+                        
+                        <div class="table-row">
+                            <div class="col-name">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>Employment_Contract.pdf</span>
+                            </div>
+                            <div class="col-type">
+                                <span class="doc-type contract">Contract</span>
+                            </div>
+                            <div class="col-date">2025-10-22</div>
+                            <div class="col-size">2.4 MB</div>
+                            <div class="col-status">
+                                <span class="status-badge ready">Ready</span>
+                            </div>
+                            <div class="col-actions">
+                                <button class="action-btn" onclick="viewDocument('contract')"><i class="fas fa-eye"></i></button>
+                                <button class="action-btn" onclick="downloadDocument('contract')"><i class="fas fa-download"></i></button>
+                                <button class="action-btn" onclick="shareDocument('contract')"><i class="fas fa-share"></i></button>
+                                <button class="action-btn danger" onclick="deleteDocument('contract')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                        
+                        <div class="table-row">
+                            <div class="col-name">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>Email_Evidence.pdf</span>
+                            </div>
+                            <div class="col-type">
+                                <span class="doc-type evidence">Evidence</span>
+                            </div>
+                            <div class="col-date">2025-10-21</div>
+                            <div class="col-size">1.1 MB</div>
+                            <div class="col-status">
+                                <span class="status-badge redacted">Redacted</span>
+                            </div>
+                            <div class="col-actions">
+                                <button class="action-btn" onclick="viewDocument('evidence')"><i class="fas fa-eye"></i></button>
+                                <button class="action-btn" onclick="downloadDocument('evidence')"><i class="fas fa-download"></i></button>
+                                <button class="action-btn" onclick="shareDocument('evidence')"><i class="fas fa-share"></i></button>
+                                <button class="action-btn danger" onclick="deleteDocument('evidence')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                        
+                        <div class="table-row">
+                            <div class="col-name">
+                                <i class="fas fa-file-word"></i>
+                                <span>Witness_Statement.docx</span>
+                            </div>
+                            <div class="col-type">
+                                <span class="doc-type statement">Statement</span>
+                            </div>
+                            <div class="col-date">2025-10-20</div>
+                            <div class="col-size">856 KB</div>
+                            <div class="col-status">
+                                <span class="status-badge processing">Processing</span>
+                                <div class="processing-spinner"></div>
+                            </div>
+                            <div class="col-actions">
+                                <button class="action-btn disabled"><i class="fas fa-eye"></i></button>
+                                <button class="action-btn disabled"><i class="fas fa-download"></i></button>
+                                <button class="action-btn disabled"><i class="fas fa-share"></i></button>
+                                <button class="action-btn danger" onclick="deleteDocument('statement')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="document-preview glass-card hidden" id="document-preview">
+                    <div class="preview-header">
+                        <h3>Document Preview</h3>
+                        <button class="close-preview" onclick="closeDocumentPreview()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="preview-content">
+                        <div class="ocr-text">
+                            <h4>Extracted Text (OCR)</h4>
+                            <div class="text-content">
+                                <p>This is a sample of extracted text from the document. The OCR system has identified and extracted readable text content for better searchability and analysis.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analytics Page -->
+            <div class="page-content hidden" id="analytics-page" style="position: relative; z-index: 1;">
+                <div class="page-header">
+                    <h1>Analytics Dashboard</h1>
+                    <p>Insights and metrics about your legal journey</p>
+                </div>
+                
+                <div class="analytics-kpis">
+                    <div class="kpi-card glass-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value">1,247</div>
+                            <div class="kpi-label">Total Cases</div>
+                            <div class="kpi-change positive">+12%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card glass-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value">892</div>
+                            <div class="kpi-label">Completed Cases</div>
+                            <div class="kpi-change positive">+8%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card glass-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value">45m</div>
+                            <div class="kpi-label">Avg Triage Time</div>
+                            <div class="kpi-change negative">-5%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card glass-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value">94%</div>
+                            <div class="kpi-label">Lawyer Response Rate</div>
+                            <div class="kpi-change positive">+3%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analytics-charts">
+                    <div class="chart-container glass-card">
+                        <div class="chart-header">
+                            <h3>Monthly Case Trends</h3>
+                        </div>
+                        <div class="chart-content">
+                            <canvas id="monthlyTrendsChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container glass-card">
+                        <div class="chart-header">
+                            <h3>Topic Distribution</h3>
+                        </div>
+                        <div class="chart-content">
+                            <canvas id="topicDistributionChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container glass-card large">
+                        <div class="chart-header">
+                            <h3>Case Readiness Score Over Time</h3>
+                        </div>
+                        <div class="chart-content">
+                            <canvas id="readinessScoreChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI Insights Page -->
+            <div class="page-content hidden" id="ai-insights-page" style="position: relative; z-index: 1;">
+                <div class="page-header">
+                    <h1>AI Insights &amp; Tools</h1>
+                    <p>Advanced AI features for legal analysis and assistance</p>
+                </div>
+                
+                <div class="ai-controls glass-card">
+                    <h3>AI Configuration</h3>
+                    <div class="control-group">
+                        <label>Response Mode:</label>
+                        <div class="mode-toggles">
+                            <button class="mode-btn active" data-mode="story">Story Mode</button>
+                            <button class="mode-btn" data-mode="structured">Structured Q&amp;A</button>
+                            <button class="mode-btn" data-mode="freeform">Free-form</button>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Sensitivity Level:</label>
+                        <input type="range" min="1" max="5" value="3" class="sensitivity-slider">
+                        <div class="slider-labels">
+                            <span>Low</span>
+                            <span>High</span>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Language Preference:</label>
+                        <select class="language-select">
+                            <option value="en">English</option>
+                            <option value="hi">हिंदी</option>
+                            <option value="mixed">Mixed (English + Hindi)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="rag-sources glass-card">
+                    <h3>Connected Legal Databases</h3>
+                    <div class="source-list">
+                        <div class="source-item connected">
+                            <i class="fas fa-database"></i>
+                            <div class="source-info">
+                                <span class="source-name">Indian Penal Code (IPC)</span>
+                                <span class="source-status">Connected</span>
+                            </div>
+                            <span class="connection-indicator"></span>
+                        </div>
+                        
+                        <div class="source-item connected">
+                            <i class="fas fa-database"></i>
+                            <div class="source-info">
+                                <span class="source-name">Code of Criminal Procedure (CrPC)</span>
+                                <span class="source-status">Connected</span>
+                            </div>
+                            <span class="connection-indicator"></span>
+                        </div>
+                        
+                        <div class="source-item connected">
+                            <i class="fas fa-database"></i>
+                            <div class="source-info">
+                                <span class="source-name">Consumer Protection Act</span>
+                                <span class="source-status">Connected</span>
+                            </div>
+                            <span class="connection-indicator"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="legal-generator glass-card">
+                    <h3>Legal Document Generator</h3>
+                    <div class="generator-controls">
+                        <select class="template-selector">
+                            <option>Select Template</option>
+                            <option value="case-summary">Case Summary</option>
+                            <option value="fir-draft">FIR Draft</option>
+                            <option value="notice">Legal Notice</option>
+                            <option value="bail-grounds">Bail Application Grounds</option>
+                        </select>
+                        
+                        <button class="btn btn-primary" onclick="generateDocument()">
+                            <i class="fas fa-magic"></i>
+                            Generate Document
+                        </button>
+                    </div>
+                    
+                    <div class="document-preview-area hidden" id="ai-document-preview">
+                        <div class="preview-header">
+                            <h4>Generated Document Preview</h4>
+                            <div class="educational-disclaimer">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>This is an AI-generated template for educational purposes. Please review with a qualified lawyer.</span>
+                            </div>
+                        </div>
+                        
+                        <div class="preview-content" id="generated-content">
+                            <!-- Generated content will appear here -->
+                        </div>
+                        
+                        <div class="preview-actions">
+                            <button class="btn btn-secondary" onclick="editDocument()">Edit</button>
+                            <button class="btn btn-primary" onclick="downloadGenerated()">Download</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="lawyer-handoff glass-card">
+                    <h3>Lawyer Handoff Tools</h3>
+                    <div class="handoff-options">
+                        <label class="handoff-toggle">
+                            <input type="checkbox" checked>
+                            <span>Include chat transcript</span>
+                        </label>
+                        
+                        <div class="urgency-selector">
+                            <label>Case Urgency:</label>
+                            <div class="urgency-options">
+                                <button class="urgency-btn" data-urgency="low">Low</button>
+                                <button class="urgency-btn active" data-urgency="medium">Medium</button>
+                                <button class="urgency-btn" data-urgency="high">High</button>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="initiateHandoff()">
+                            <i class="fas fa-user-tie"></i>
+                            Send to Lawyer
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="automation-samples glass-card">
+                    <h3>AI Automation Examples</h3>
+                    <div class="automation-grid">
+                        <div class="automation-card">
+                            <i class="fas fa-clipboard-list"></i>
+                            <h4>Document Checklist</h4>
+                            <p>Automatically generate required document lists based on case type</p>
+                            <button class="btn btn-secondary" onclick="runAutomation('checklist')">Run Sample</button>
+                        </div>
+                        
+                        <div class="automation-card">
+                            <i class="fas fa-clock"></i>
+                            <h4>Timeline Prediction</h4>
+                            <p>Predict case timeline based on historical data and complexity</p>
+                            <button class="btn btn-secondary" onclick="runAutomation('timeline')">Run Sample</button>
+                        </div>
+                        
+                        <div class="automation-card">
+                            <i class="fas fa-envelope"></i>
+                            <h4>Status Updates</h4>
+                            <p>Generate professional case status updates for clients</p>
+                            <button class="btn btn-secondary" onclick="runAutomation('status')">Run Sample</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Policies Page -->
+            <div class="page-content hidden" id="policies-page" style="position: relative; z-index: 1;">
+                <div class="page-header">
+                    <h1>Policies &amp; Compliance</h1>
+                    <p>Legal disclaimers, privacy policies, and compliance information</p>
+                </div>
+                
+                <div class="policy-sections">
+                    <div class="policy-section glass-card">
+                        <div class="section-header" onclick="togglePolicySection('disclaimers')">
+                            <h3>Legal Disclaimers</h3>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="section-content" id="disclaimers">
+                            <div class="disclaimer-item">
+                                <h4>No Attorney-Client Relationship</h4>
+                                <p>NyaySaathi is an AI-powered legal information platform. Use of this service does not create an attorney-client relationship. The information provided is for educational purposes only and should not be construed as legal advice.</p>
+                            </div>
+                            
+                            <div class="disclaimer-item">
+                                <h4>Limitation of Liability</h4>
+                                <p>NyaySaathi and its operators shall not be liable for any damages arising from the use of information provided through this platform. Users are advised to consult qualified legal professionals for specific legal matters.</p>
+                            </div>
+                            
+                            <div class="disclaimer-item">
+                                <h4>Jurisdiction Limitations</h4>
+                                <p>The legal information provided is based on Indian law. Laws may vary by state and are subject to change. Users should verify current legal provisions with qualified practitioners.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="policy-section glass-card">
+                        <div class="section-header" onclick="togglePolicySection('privacy')">
+                            <h3>Privacy Policy</h3>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="section-content" id="privacy">
+                            <div class="privacy-item">
+                                <h4>Data Collection</h4>
+                                <p>We collect only the minimum information necessary to provide legal guidance. All personal information is encrypted and stored securely.</p>
+                            </div>
+                            
+                            <div class="privacy-item">
+                                <h4>Data Usage</h4>
+                                <p>Your data is used solely to provide personalized legal guidance and connect you with appropriate legal professionals. We do not sell or share your data with third parties.</p>
+                            </div>
+                            
+                            <div class="privacy-item">
+                                <h4>Data Retention</h4>
+                                <p>Case data is retained for the duration necessary to provide services, with configurable retention periods. You may request data deletion at any time.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="policy-section glass-card">
+                        <div class="section-header" onclick="togglePolicySection('terms')">
+                            <h3>Terms of Service</h3>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="section-content" id="terms">
+                            <div class="terms-item">
+                                <h4>Acceptable Use</h4>
+                                <p>Users must provide accurate information and use the platform for legitimate legal guidance purposes only. Misuse or abuse of the platform is prohibited.</p>
+                            </div>
+                            
+                            <div class="terms-item">
+                                <h4>Service Availability</h4>
+                                <p>While we strive for continuous availability, the service may be temporarily unavailable for maintenance or updates. We are not liable for any losses due to service interruptions.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="compliance-status glass-card">
+                    <h3>Compliance Status</h3>
+                    <div class="compliance-grid">
+                        <div class="compliance-item">
+                            <div class="compliance-icon success">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="compliance-details">
+                                <h4>Data Protection</h4>
+                                <p>GDPR &amp; IT Act 2000 Compliant</p>
+                                <span class="status-badge success">Active</span>
+                            </div>
+                        </div>
+                        
+                        <div class="compliance-item">
+                            <div class="compliance-icon success">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <div class="compliance-details">
+                                <h4>Security Encryption</h4>
+                                <p>AES-256 End-to-End Encryption</p>
+                                <span class="status-badge success">Verified</span>
+                            </div>
+                        </div>
+                        
+                        <div class="compliance-item">
+                            <div class="compliance-icon success">
+                                <i class="fas fa-gavel"></i>
+                            </div>
+                            <div class="compliance-details">
+                                <h4>Legal Framework</h4>
+                                <p>Bar Council Guidelines Adherence</p>
+                                <span class="status-badge success">Compliant</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="jurisdiction-updates glass-card">
+                    <h3>Legal Framework Updates</h3>
+                    <div class="updates-list">
+                        <div class="update-item">
+                            <div class="update-date">2024-10-10</div>
+                            <div class="update-content">
+                                <h4>Consumer Protection Act 2019</h4>
+                                <p>Updated provisions for online dispute resolution mechanisms</p>
+                            </div>
+                        </div>
+                        
+                        <div class="update-item">
+                            <div class="update-date">2024-09-01</div>
+                            <div class="update-content">
+                                <h4>IPC Section 354</h4>
+                                <p>Clarifications on digital evidence admissibility in harassment cases</p>
+                            </div>
+                        </div>
+                        
+                        <div class="update-item">
+                            <div class="update-date">2024-08-15</div>
+                            <div class="update-content">
+                                <h4>IPC Section 498A</h4>
+                                <p>Supreme Court guidelines on arrest procedures</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="policy-downloads glass-card">
+                    <h3>Download Policy Documents</h3>
+                    <div class="download-grid">
+                        <button class="download-btn" onclick="downloadPolicy('privacy')">
+                            <i class="fas fa-download"></i>
+                            Privacy Policy (PDF)
+                        </button>
+                        <button class="download-btn" onclick="downloadPolicy('terms')">
+                            <i class="fas fa-download"></i>
+                            Terms of Service (PDF)
+                        </button>
+                        <button class="download-btn" onclick="downloadPolicy('disclaimers')">
+                            <i class="fas fa-download"></i>
+                            Legal Disclaimers (PDF)
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Page -->
+            <div class="page-content hidden" id="settings-page" style="position: relative; z-index: 1;">
+                <div class="page-header">
+                    <h1>Settings</h1>
+                    <p>Customize your NyaySaathi experience</p>
+                </div>
+                
+                <div class="settings-sections">
+                    <div class="settings-section glass-card">
+                        <h3>Profile Settings</h3>
+                        <div class="setting-item">
+                            <label>Display Name</label>
+                            <input type="text" value="Demo User" class="setting-input">
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label>Email Address</label>
+                            <input type="email" value="demo@nyaysaathi.com" class="setting-input">
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label>Preferred Language</label>
+                            <select class="setting-select">
+                                <option value="en">English</option>
+                                <option value="hi">हिंदी</option>
+                                <option value="mixed">Mixed</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section glass-card">
+                        <h3>Appearance</h3>
+                        <div class="setting-item">
+                            <label>Theme</label>
+                            <div class="theme-options">
+                                <button class="theme-btn active" data-theme="light">
+                                    <i class="fas fa-sun"></i>
+                                    Light
+                                </button>
+                                <button class="theme-btn" data-theme="dark">
+                                    <i class="fas fa-moon"></i>
+                                    Dark
+                                </button>
+                                <button class="theme-btn" data-theme="auto">
+                                    <i class="fas fa-adjust"></i>
+                                    Auto
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label>Font Size</label>
+                            <input type="range" min="12" max="20" value="14" class="font-size-slider">
+                            <div class="slider-display">14px</div>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section glass-card">
+                        <h3>Accessibility</h3>
+                        <div class="setting-item">
+                            <label class="toggle-label">
+                                <input type="checkbox" class="setting-toggle">
+                                <span class="toggle-slider"></span>
+                                High Contrast Mode
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label class="toggle-label">
+                                <input type="checkbox" class="setting-toggle">
+                                <span class="toggle-slider"></span>
+                                Screen Reader Mode
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label class="toggle-label">
+                                <input type="checkbox" checked class="setting-toggle">
+                                <span class="toggle-slider"></span>
+                                Keyboard Navigation
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section glass-card">
+                        <h3>Notifications</h3>
+                        <div class="setting-item">
+                            <label class="toggle-label">
+                                <input type="checkbox" checked class="setting-toggle">
+                                <span class="toggle-slider"></span>
+                                Case Updates
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label class="toggle-label">
+                                <input type="checkbox" checked class="setting-toggle">
+                                <span class="toggle-slider"></span>
+                                Lawyer Responses
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label class="toggle-label">
+                                <input type="checkbox" class="setting-toggle">
+                                <span class="toggle-slider"></span>
+                                Email Notifications
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section glass-card">
+                        <h3>Privacy Controls</h3>
+                        <div class="setting-item">
+                            <label>Data Retention Period</label>
+                            <select class="setting-select">
+                                <option value="1">1 Year</option>
+                                <option value="2" selected>2 Years</option>
+                                <option value="5">5 Years</option>
+                                <option value="permanent">Permanent</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label class="toggle-label">
+                                <input type="checkbox" checked class="setting-toggle">
+                                <span class="toggle-slider"></span>
+                                Analytics Tracking
+                            </label>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <button class="btn btn-secondary" onclick="exportUserData()">
+                                <i class="fas fa-download"></i>
+                                Export My Data
+                            </button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <button class="btn btn-secondary danger" onclick="deleteAccount()">
+                                <i class="fas fa-trash"></i>
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Help Page -->
+            <div class="page-content hidden" id="help-page" style="position: relative; z-index: 1;">
+                <div class="page-header">
+                    <h1>Help &amp; Support</h1>
+                    <p>Get assistance and learn how to use NyaySaathi effectively</p>
+                </div>
+                
+                <div class="help-search glass-card">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" placeholder="Search help articles..." class="help-search-input">
+                    </div>
+                </div>
+                
+                <div class="help-sections">
+                    <div class="help-section glass-card">
+                        <h3>Frequently Asked Questions</h3>
+                        <div class="faq-list">
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ('faq1')">
+                                    <span>How does NyaySaathi protect my privacy?</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="faq-answer" id="faq1">
+                                    <p>NyaySaathi uses end-to-end encryption to protect all your communications and data. We follow a zero-knowledge architecture where our servers cannot access your unencrypted information. All data is stored securely and you have full control over your privacy settings.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ('faq2')">
+                                    <span>Is the AI advice legally binding?</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="faq-answer" id="faq2">
+                                    <p>No, the AI-generated content is for educational purposes only and does not constitute legal advice. It's designed to help you understand your situation better and prepare for consultation with qualified lawyers. Always consult a licensed attorney for binding legal advice.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ('faq3')">
+                                    <span>How are lawyers verified on the platform?</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="faq-answer" id="faq3">
+                                    <p>All lawyers on NyaySaathi are verified through a comprehensive process including Bar Council registration verification, credential checks, and background verification. We ensure only qualified and ethical legal professionals are available on our platform.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ('faq4')">
+                                    <span>What happens to my case data?</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="faq-answer" id="faq4">
+                                    <p>Your case data is securely stored and only shared with lawyers you explicitly choose to consult. You can configure data retention periods in your settings, and you have the right to delete your data at any time. We comply with all applicable data protection regulations.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="help-section glass-card">
+                        <h3>Video Tutorials</h3>
+                        <div class="video-grid">
+                            <div class="video-card">
+                                <div class="video-thumbnail">
+                                    <i class="fas fa-play-circle"></i>
+                                </div>
+                                <h4>Getting Started with NyaySaathi</h4>
+                                <p>Learn the basics of using our platform</p>
+                                <span class="video-duration">5:30</span>
+                            </div>
+                            
+                            <div class="video-card">
+                                <div class="video-thumbnail">
+                                    <i class="fas fa-play-circle"></i>
+                                </div>
+                                <h4>Understanding Story Mode Guidance</h4>
+                                <p>How to interpret AI-generated legal stories</p>
+                                <span class="video-duration">7:15</span>
+                            </div>
+                            
+                            <div class="video-card">
+                                <div class="video-thumbnail">
+                                    <i class="fas fa-play-circle"></i>
+                                </div>
+                                <h4>Connecting with Lawyers</h4>
+                                <p>Best practices for lawyer consultations</p>
+                                <span class="video-duration">4:45</span>
+                            </div>
+                            
+                            <div class="video-card">
+                                <div class="video-thumbnail">
+                                    <i class="fas fa-play-circle"></i>
+                                </div>
+                                <h4>Document Management</h4>
+                                <p>Organizing and sharing legal documents</p>
+                                <span class="video-duration">6:20</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="help-section glass-card">
+                        <h3>Contact Support</h3>
+                        <div class="contact-form">
+                            <div class="form-group">
+                                <label>Subject</label>
+                                <select class="form-select">
+                                    <option>Select a topic</option>
+                                    <option>Technical Issue</option>
+                                    <option>Account Problem</option>
+                                    <option>Lawyer Connection</option>
+                                    <option>Privacy Concern</option>
+                                    <option>Feature Request</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Message</label>
+                                <textarea class="form-textarea" rows="4" placeholder="Please describe your issue or question..."></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-checkbox">
+                                    <input type="checkbox">
+                                    <span>Include case data for context (if relevant)</span>
+                                </label>
+                            </div>
+                            
+                            <button class="btn btn-primary" onclick="submitSupportRequest()">
+                                <i class="fas fa-paper-plane"></i>
+                                Send Message
+                            </button>
+                        </div>
+                        
+                        <div class="contact-alternatives">
+                            <div class="contact-method">
+                                <i class="fas fa-envelope"></i>
+                                <span>support@nyaysaathi.com</span>
+                            </div>
+                            <div class="contact-method">
+                                <i class="fas fa-phone"></i>
+                                <span>+91-800-NYAY-HELP</span>
+                            </div>
+                            <div class="contact-method">
+                                <i class="fas fa-clock"></i>
+                                <span>Support Hours: 9 AM - 9 PM IST</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Story Mode Page -->
+            <div class="page-content hidden" id="story-mode-page" style="position: relative; z-index: 1;">
+                <div class="page-header">
+                    <h1>Similar Legal Stories</h1>
+                    <p>Learn from real cases and understand potential outcomes</p>
+                </div>
+                
+                <div class="educational-disclaimer">
+                    <i class="fas fa-info-circle"></i>
+                    <span>This is educational content, not personalized legal advice</span>
+                </div>
+                
+                <div class="story-layout">
+                    <div class="story-panel glass-card">
+                        <h3>A Similar Situation</h3>
+                        <div class="story-content">
+                            <p><strong>Case Study:</strong> Ramesh faced workplace harassment from his supervisor. He documented incidents over 3 months, including emails and witness statements.</p>
+                            
+                            <div class="story-timeline">
+                                <div class="timeline-item">
+                                    <div class="timeline-marker"></div>
+                                    <div class="timeline-content">
+                                        <h4>Month 1-3: Documentation</h4>
+                                        <p>Collected emails, witness statements, recorded incidents</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-marker"></div>
+                                    <div class="timeline-content">
+                                        <h4>Month 4: Formal Complaint</h4>
+                                        <p>Filed complaint with Internal Committee under POSH Act</p>
+                                    </div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-marker"></div>
+                                    <div class="timeline-content">
+                                        <h4>Month 6: Resolution</h4>
+                                        <p>Committee found allegations substantiated, disciplinary action taken</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="outcomes-carousel">
+                                <h4>What Typically Happens</h4>
+                                <div class="outcome-cards">
+                                    <div class="outcome-card active">
+                                        <div class="outcome-type success">Favorable</div>
+                                        <p>Compensation awarded, disciplinary action taken</p>
+                                        <small>Timeline: 6 months</small>
+                                    </div>
+                                    <div class="outcome-card">
+                                        <div class="outcome-type warning">Mixed</div>
+                                        <p>Partial resolution, workplace changes implemented</p>
+                                        <small>Timeline: 4-8 months</small>
+                                    </div>
+                                    <div class="outcome-card">
+                                        <div class="outcome-type error">Challenging</div>
+                                        <p>Insufficient evidence, case dismissed</p>
+                                        <small>Timeline: 2-4 months</small>
+                                    </div>
+                                </div>
+                                <div class="carousel-controls">
+                                    <button onclick="previousOutcome()">&lt;</button>
+                                    <button onclick="nextOutcome()">&gt;</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="legal-panel glass-card">
+                        <h3>Legal Framework</h3>
+                        
+                        <div class="legal-sections">
+                            <div class="legal-section expandable">
+                                <div class="section-header" onclick="toggleSection('posh-act')">
+                                    <h4>POSH Act 2013</h4>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="section-content" id="posh-act">
+                                    <p>The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013 provides protection against sexual harassment at workplace.</p>
+                                    <div class="last-updated">Last updated: 2024-09-01</div>
+                                </div>
+                            </div>
+                            
+                            <div class="legal-section expandable">
+                                <div class="section-header" onclick="toggleSection('ipc-354a')">
+                                    <h4>IPC Section 354A</h4>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="section-content" id="ipc-354a">
+                                    <p>Sexual harassment and punishment for sexual harassment. Covers physical contact, unwelcome sexual advances, and demanding sexual favors.</p>
+                                    <div class="last-updated">Last updated: 2024-08-15</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="risk-assessment-visual">
+                            <h4>Risk Assessment</h4>
+                            <div class="risk-indicators">
+                                <div class="risk-indicator medium">
+                                    <span class="risk-label">Evidence Quality</span>
+                                    <div class="risk-level">Medium</div>
+                                </div>
+                                <div class="risk-indicator low">
+                                    <span class="risk-label">Legal Complexity</span>
+                                    <div class="risk-level">Low</div>
+                                </div>
+                                <div class="risk-indicator high">
+                                    <span class="risk-label">Timeline Pressure</span>
+                                    <div class="risk-level">High</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="rag-insights">
+                            <h4>RAG Insights</h4>
+                            <div class="insight-item">
+                                <i class="fas fa-gavel"></i>
+                                <div>
+                                    <strong>Past Cases:</strong>
+                                    <p>78% success rate in documented workplace harassment cases</p>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <i class="fas fa-chart-line"></i>
+                                <div>
+                                    <strong>Outcome Patterns:</strong>
+                                    <p>Cases with email evidence have 85% higher success rate</p>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <i class="fas fa-users"></i>
+                                <div>
+                                    <strong>Power Dynamics:</strong>
+                                    <p>Supervisor harassment cases require strong documentation</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="document-checklist">
+                            <h4>Document Requirements</h4>
+                            <div class="checklist-item">
+                                <i class="fas fa-envelope"></i>
+                                <span>Email correspondence</span>
+                            </div>
+                            <div class="checklist-item">
+                                <i class="fas fa-users"></i>
+                                <span>Witness statements</span>
+                            </div>
+                            <div class="checklist-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Incident timeline</span>
+                            </div>
+                            <div class="checklist-item">
+                                <i class="fas fa-file-contract"></i>
+                                <span>Employment contract</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="continue-actions">
+                    <button class="btn btn-primary" onclick="navigateTo('case-summary')">
+                        Proceed to Case Summary
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- AI Assistant Floating Widget -->
+    <div class="ai-assistant-float" id="ai-assistant">
+        <div class="ai-chat-bubble" onclick="toggleAIAssistant()">
+            <i class="fas fa-robot"></i>
+        </div>
+        
+        <div class="ai-chat-panel glass-card hidden" id="ai-chat-panel">
+            <div class="ai-panel-header">
+                <h4>AI Assistant</h4>
+                <button onclick="toggleAIAssistant()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="ai-quick-actions">
+                <button class="ai-action-chip" onclick="navigateTo('intake')">
+                    Start confidential intake
+                </button>
+                <button class="ai-action-chip" onclick="navigateTo('story-mode')">
+                    Explain via story-mode
+                </button>
+                <button class="ai-action-chip" onclick="navigateTo('case-summary')">
+                    Summarize case
+                </button>
+                <button class="ai-action-chip" onclick="navigateTo('marketplace')">
+                    Find lawyers
+                </button>
+            </div>
+            
+            <div class="ai-chat-mini">
+                <div class="ai-message-mini">
+                    <p>Hi! How can I help you today?</p>
+                </div>
+                <div class="ai-input-mini">
+                    <input type="text" placeholder="Ask me anything...">
+                    <button><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal()"></div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
