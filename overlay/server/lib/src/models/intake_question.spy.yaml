@@ -1,0 +1,8 @@
+### A clarifying question, asked by the model but chosen by the policy: the
+### server decides how many and stops at three.
+class: IntakeQuestion
+fields:
+  id: String
+  prompt: String
+  why: String?
+  answerKind: String?

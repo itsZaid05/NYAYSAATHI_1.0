@@ -1,0 +1,18 @@
+### What triage returns to the client. Separate from the stored row so the UI can
+### show what was just decided without a second round trip.
+class: TriageResult
+fields:
+  caseId: int
+  reference: String
+  domain: LegalDomain
+  urgency: Urgency
+  summary: String?
+  riskScore: int
+  riskFactors: List<String>
+  missingEvidence: List<String>
+  completeness: int
+  timeSensitivity: String?
+  safetyEscalation: bool
+  questions: List<IntakeQuestion>?
+  promptVersion: String?
+  model: String?

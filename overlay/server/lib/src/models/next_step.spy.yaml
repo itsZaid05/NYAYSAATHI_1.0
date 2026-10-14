@@ -1,0 +1,11 @@
+### One action in the plan. Deliberately flat so it renders in a list and in a
+### PDF from the same object.
+class: NextStep
+fields:
+  title: String
+  detail: String
+  who: String?
+  where: String?
+  byWhen: String?
+  documents: List<String>?
+  authorityIndex: int?

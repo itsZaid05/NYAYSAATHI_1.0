@@ -1,0 +1,7 @@
+### A letter or complaint the user can write from the plan. A starting point,
+### not a filing: the app never claims to draft a court document.
+class: DraftDocument
+fields:
+  kind: String
+  to: String?
+  body: String

@@ -1,0 +1,8 @@
+### State of a generated plan. `failed` is a real state with a stored reason,
+### never a silent empty response.
+enum: AdviceStatus
+values:
+  - queued
+  - running
+  - ready
+  - failed

@@ -1,0 +1,8 @@
+### Where a case file is in its life. Stored, not derived, so the client can
+### draw the progress bar from one read and a reload never re-runs the model.
+enum: CaseStage
+values:
+  - intake
+  - triaged
+  - advised
+  - closed

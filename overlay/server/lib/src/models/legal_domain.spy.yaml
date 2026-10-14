@@ -1,0 +1,14 @@
+### The area of law the case falls into. Kept short on purpose: everything the
+### app can advise on must be a domain it has provisions for, so a domain with no
+### rows in the corpus would produce an unsourced answer.
+enum: LegalDomain
+values:
+  - workplace
+  - tenancy
+  - consumer
+  - police
+  - family
+  - debt
+  - online
+  - employment
+  - other

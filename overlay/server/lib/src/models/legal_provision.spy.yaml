@@ -1,0 +1,27 @@
+### The statute index. This is the only source of law the app will cite, and the
+### only text a plan's references are rebuilt from.
+class: LegalProvision
+table: legal_provision
+
+fields:
+  code: String
+  title: String
+  domain: LegalDomain
+  act: String
+  gist: String
+  verbatim: String?
+  procedure: String?
+  authority: String?
+  remedy: String?
+  limitationPeriodMonths: int?
+  emergencyLine: String?
+  sourceUrl: String
+  needsVerification: bool, default=true
+  keywords: List<String>?
+
+indexes:
+  provision_code_idx:
+    fields: code
+    unique: true
+  provision_domain_idx:
+    fields: domain
