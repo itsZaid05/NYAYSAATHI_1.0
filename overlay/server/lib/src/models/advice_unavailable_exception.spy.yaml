@@ -1,7 +1,6 @@
 ### The model, the schema or the network failed. Surfaced as an exception so the
 ### client can offer a retry instead of an empty panel.
-class: AdviceUnavailableException
-exception: true
+exception: AdviceUnavailableException
 
 fields:
   reason: String

@@ -536,7 +536,6 @@ class AdviceEngine {
   }
 
   static String _triageBlock(LegalCase legalCase, List<String> redacted) => [
-        'reference: ${legalCase.reference}',
         'domain: ${legalCase.domain.name}',
         'urgency: ${legalCase.urgency.name}',
         'summary: ${legalCase.summary ?? '(none)'}',

@@ -89,6 +89,7 @@ retain the recovery artifact.
 ## Verification and submission
 
 - [Build and run instructions](docs/RUNBOOK.md)
+- [Checks performed and remaining verification](docs/VERIFICATION.md)
 - [Known limitations and privacy boundaries](docs/LIMITATIONS.md)
 - [AI-use disclosure](docs/AI_USE.md)
 - [Submission description and outstanding checklist](docs/SUBMISSION.md)

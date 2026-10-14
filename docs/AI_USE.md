@@ -20,7 +20,10 @@ has not yet been supplied in this session. The author runs the Flutter, Dart,
 Serverpod, and database toolchain. No successful toolchain output has been
 provided during this recovery and cleanup session.
 
-Update the submission checklist with actual results, not anticipated results.
+The agent ran Python setup-script tests, a heuristic source audit, and shell/diff
+checks during cleanup. These are recorded in [VERIFICATION.md](VERIFICATION.md)
+and do not establish Dart/Flutter runtime behavior. Update the submission checklist
+with actual results, not anticipated results.
 
 ## AI inside the product
 

@@ -32,6 +32,10 @@ for f in sorted(glob.glob(f'{SERVER}/lib/src/models/*.spy.yaml')):
     if not isinstance(d, dict):
         problems.append(f'{f}: not a mapping')
         continue
+    declarations = [key for key in ('class', 'exception', 'enum') if key in d]
+    if len(declarations) != 1 or not isinstance(d.get(declarations[0]), str):
+        problems.append(f'{f}: declare exactly one named class, exception, or enum')
+        continue
     parsed[f] = d
     name = d.get('class') or d.get('exception') or d.get('enum')
     if not name:

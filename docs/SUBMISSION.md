@@ -45,7 +45,9 @@ reviewer's own Google AI Studio key and access to the service.
 Application source recovery and submission cleanup are complete. **The generated
 project, migration, Dart/Flutter analysis, tests, and runtime flow are not yet
 verified.** No working deployment or successful live Gemini run is claimed.
-Read [LIMITATIONS.md](LIMITATIONS.md) before evaluating the build.
+Python setup tests and the heuristic source audit pass; see
+[VERIFICATION.md](VERIFICATION.md) for the exact scope. Read
+[LIMITATIONS.md](LIMITATIONS.md) before evaluating the build.
 
 ## Before pressing Submit
 

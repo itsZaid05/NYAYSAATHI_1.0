@@ -2,8 +2,8 @@
 ///
 /// These stand in for the model, never for the engine: retrieval, schema
 /// validation, citation filtering, risk scoring and storage all still run.
-/// Replace them by recording real responses (the `log` line the engine prints
-/// names the case) so the offline path reflects what the model actually says.
+/// These are a fixed workplace example, not personalized advice. Replace them
+/// only with sanitized, genuinely recorded responses and document their origin.
 const kFixtureAnswers = <String, Map<String, Object?>>{
   'intake analyst': {
     'domain': 'workplace',

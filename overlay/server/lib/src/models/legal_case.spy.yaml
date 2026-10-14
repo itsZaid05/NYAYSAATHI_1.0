@@ -2,7 +2,7 @@ class: LegalCase
 table: legal_case
 
 fields:
-  reference: String, unique
+  reference: String
   narrative: String
   domain: LegalDomain, default=other
   urgency: Urgency, default=soon
