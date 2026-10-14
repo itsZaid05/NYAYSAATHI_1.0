@@ -1,33 +1,64 @@
-# Limitations, stated before anyone finds them
+# Limitations and privacy boundaries
 
-* **Nothing here has been compiled.** The code was written in a sandbox with no
-  Dart, Flutter, Serverpod CLI or Postgres. `serverpod generate` and the first
-  `flutter run` are the moment of truth; `docs/RUNBOOK.md` ends with the fixes
-  most likely to be needed.
-* **No authentication in this build.** Four hours before the deadline is not the
-  time to debug `SignInWidget`, so the anonymous-provider wiring was cut rather
-  than faked. What replaces it: a case is addressed by a 13-character random
-  reference (`NYAY-XXXX-XXXX`) generated with `Random.secure()`, never by its row
-  id, and the numeric id is not accepted by any endpoint. Anyone holding the
-  reference can read that file — which is a deliberate capability-URL trade-off,
-  not an oversight. The `userId` column and `requireLogin` are the first thing to
-  add back.
-* **Retrieval is lexical.** Keyword and domain scoring over 25 provisions, not
-  embeddings. It is real and it is what makes the citation filter possible, but a
-  case phrased in unusual words can find nothing — and the app then says the law
-  is unclear rather than inventing something.
-* **The corpus is transcribed, not fetched.** 25 provisions, written by hand from
-  the official India Code text. `sourceUrl` is the India Code root for every row
-  because deep per-act links could not be verified from where this was written;
-  the alternative was plausible-looking URLs that might be wrong. Rows that state
-  a number or a period are marked `needsVerification`, which the plan screen
-  shows verbatim.
-* **One page of PDF, one language.** `PdfBuilder` writes its own text objects
-  (no dependency, xref offsets verified by test) and truncates with a visible note
-  rather than spilling. English only.
-* **Fixtures are hand-written.** They are shaped like real answers and used only
-  when no key is present, but they were not recorded from a live call yet. Until
-  they are, the offline path proves the plumbing, not the prose.
-* **The model can still be wrong.** Grounding, schema validation and citation
-  filtering bound the damage; they do not remove it. That is why the wording, the
-  prompt version and the search queries are on the screen next to the answer.
+## Build status
+
+The recovered Dart/Flutter sources have **not been compiled or run in this
+session**. Generated packages, a database migration, and toolchain output are not
+yet committed. Source-level fixes do not establish compatibility with Serverpod
+4.0.3. The [runbook](RUNBOOK.md) describes the required validation; the
+[submission checklist](SUBMISSION.md) records the remaining work.
+
+## Legal information, not legal advice
+
+- The corpus contains 25 hand-transcribed provisions. Retrieval is lexical,
+  not semantic; unfamiliar phrasing may miss relevant provisions.
+- Sources link to the India Code root rather than verified per-act pages.
+  Wording and applicability require independent checking, even for entries
+  without a verification warning. State-specific rules may be absent.
+- Structured citations come from corpus rows. Model-generated prose may still
+  contain mistakes, unsupported claims, or inappropriate next steps.
+- Risk and completeness scores are heuristics, not calibrated legal judgments.
+  Urgency and safety classification can miss danger. Do not wait for this app
+  in an emergency; contact appropriate local emergency services.
+
+## Data and access
+
+- There is no login. A `Random.secure()` case reference acts as a bearer secret.
+  Anyone with that reference can access the file. This is a demo-level trade-off,
+  not strong access control for a public legal service.
+- Original descriptions and answers are stored in PostgreSQL. The reference is
+  stored in browser localStorage. “Start a new file” forgets the local reference;
+  it does **not** delete the server-side case.
+- Live mode sends redacted context to Google. Regex redaction covers selected
+  identifier formats but can miss names, addresses, unusual formats, and other
+  identifying facts. Do not enter sensitive real-case information in this demo.
+- There is no user-facing deletion, retention policy enforcement, encryption of
+  individual case fields, or production security review.
+- In-memory per-case model limits are not global abuse protection. Restarting
+  resets them; opening additional cases can bypass them. Do not expose the
+  unauthenticated demo publicly with a billable key without additional controls.
+
+## Offline and live model behavior
+
+- Fixtures are hand-written and use a workplace example. They are not recordings
+  and do not adapt to unrelated narratives. Sample mode demonstrates the intended
+  plumbing, not personalized legal guidance.
+- Gemini access, quotas, and grounding/schema compatibility are unverified.
+  The provider retries a rejected search-tool request without search and records
+  a degradation note; corpus retrieval remains separate from web search.
+- There is no claim of a successful live response or deployed service.
+
+## Reliability and scope
+
+- Two English-language web screens only. Native platforms are not supported by
+  the browser-specific helpers.
+- The PDF is a one-page, ASCII-oriented brief. Long content is visibly truncated;
+  it is not a complete export of every field or a filing-ready legal document.
+- Questions are bounded per response, not a guarantee of only three across all
+  revisions. Refresh restores stored case/plan data; pending questions require
+  re-triage because they are not persisted as a question list.
+- Concurrent requests, crashes during model generation, stale plans after intake
+  edits, and reconnect recovery need integration testing. The queue is not a
+  verified exactly-once processing system.
+- The unit tests cover selected guards, not end-to-end behavior. No integration
+  test or analysis pass has been reported.

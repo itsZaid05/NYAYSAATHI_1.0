@@ -1,103 +1,97 @@
-# NyaySaathi — a legal first-response kit on Serverpod 4
+# NyaySaathi
 
-Describe a legal problem in your own words. The server asks up to three
-clarifying questions, sorts the case, looks up the provisions that apply in its
-own statute index, and writes a numbered plan you can act on — every citation
-traceable, and a one-page PDF to take to a legal-aid clinic.
+### A clearer first step when you do not know where to turn.
 
-Built for **Build Something Real: The Serverpod Hackathon** (15 Sep → 14 Oct 2026).
-One user, one problem, one flow. No dashboard, no marketplace, no filler pages.
+NyaySaathi helps someone in India describe a legal problem in plain English,
+answer clarifying questions, and prepare a practical action plan to discuss with
+a legal-aid professional. Built around **Serverpod 4.0.3**, **Flutter**, and
+server-side **Gemini**, with an explicit no-key sample mode.
 
-## What is where
+**Describe → clarify → triage → plan → inspect sources → download a brief**
 
-```
-nyay_server/lib/src/models/        18 .spy.yaml: case, turns, provisions, plan, progress
-nyay_server/lib/src/endpoints/     intake · advice · corpus
-nyay_server/lib/src/services/      engine, corpus retrieval, model provider, guards, pdf
-nyay_server/lib/src/future_calls/  AdviceFutureCall — the plan runs off the request
-nyay_server/lib/src/corpus/        recorded fixture answers for offline runs
-nyay_server/test/unit/             the guards, tested without a database
-nyay_flutter/lib/                  two screens, one client, five shared widgets
-overlay/ scripts/ docs/            what was written for this repo, and how to run it
-```
+> **Build status:** this repository contains the recovered application sources
+> and setup scripts. Generated Serverpod packages and database migrations are
+> not yet checked in. Dart/Flutter compilation, tests, and the end-to-end flow
+> have not been verified. Follow the [runbook](docs/RUNBOOK.md); do not treat
+> source review as a successful build.
 
-## Serverpod, doing the work
+## One problem, two screens
 
-| Feature | Where it is used |
+- **Intake:** describe what happened, answer up to three questions per triage
+  response, and review the category, urgency, missing evidence, and risk factors.
+- **Action plan:** follow background-generation stages, read numbered steps,
+  inspect statute-index citations, copy a draft, and download a server-built PDF.
+- **Resume:** the browser stores a random case reference; the server stores the
+  case and plan. No account is required. Treat that reference like a password.
+
+This is **legal information, not legal advice**. It does not establish a
+lawyer–client relationship, promise an outcome, or replace emergency services.
+Do not enter real sensitive case details in an unverified demo deployment.
+
+## What Serverpod owns
+
+| Responsibility | Implementation |
 | --- | --- |
-| Endpoints + generated client | `intake.open/answer/progress/transcript`, `advice.queue/retry/latest/watch/exportPdf`, `corpus.search/count/seed` |
-| Models, Postgres, migrations | 18 model files; every screen reads rows, none reads the model |
-| Server messages (realtime) | `case_<reference>` carries `AdviceProgress`; `watch()` is a `Stream` endpoint method |
-| Future calls | the plan is built by `AdviceFutureCall`, survives a restart, retried by the framework |
-| Passwords in config | `config/passwords.yaml` holds the Gemini key; the client never sees it |
-| Caching/logging/insights | default config; `session.log` on every failure path |
+| API and typed client contract | Intake, advice, and corpus endpoints; `.spy.yaml` models |
+| Persistence | PostgreSQL case, intake-turn, provision, and advice tables |
+| Background work | `AdviceFutureCall` builds the plan outside the request |
+| Live progress | `AdviceProgress` messages on `case_<reference>` via a stream endpoint |
+| Model boundary | Server-side API key, prompt construction, redaction, payload checks |
+| Export | PDF assembled on the server from stored case and advice data |
 
-## Why the AI part is not decoration
+### How an answer is grounded
 
-`GeminiProvider` is the only thing that talks to a model —
-`v1beta/models/gemini-2.5-flash:generateContent`, `responseMimeType: application/json`
-plus an explicit `responseSchema`, with `google_search` grounding requested
-alongside. Then:
+1. Search a small, seeded statute index using lexical and domain scoring.
+2. Send retrieved provisions and redacted case context to Gemini with a JSON schema.
+3. Validate the response and rebuild the **structured citation list** from retrieved
+   database rows, rather than accepting model-written source names and URLs.
+4. Store the result and publish progress to the client.
 
-1. **Redaction first.** `redactPii` strips phone, email, Aadhaar, PAN, account
-   numbers, vehicle plates and dates of birth before anything leaves the server,
-   leaving readable tokens (`[PHONE]`) so the model still understands the shape.
-2. **Retrieval decides what may be cited.** `CorpusService` scores 25
-   hand-transcribed provisions (keyword overlap, keyword list, domain, procedure
-   match), keeps the top 6 above a threshold, and passes *their* text to the
-   model with one instruction: cite only from this list, by index, or say the law
-   is unclear.
-3. **Validation before storage.** Every field goes through `Payload`, which
-   enforces lengths, list sizes, ranges and enum membership. An answer that does
-   not fit is a failure, not a partial row.
-4. **Citations are rebuilt, not copied.** `Advice.authorities` is constructed
-   from the retrieved corpus rows by index — so an invented section number has no
-   path to the screen. Provisions carry `needsVerification`, and the UI shows it.
-5. **Risk is arithmetic.** `assessRisk` scores safety, urgency, deadline, thin
-   evidence, missing documents and domain confidence. Same facts, same number.
-6. **Failures are loud and lose nothing.** `status = failed`, the reason stored,
-   the previous plan untouched, `AdviceUnavailableException` to the client, and a
-   retry button that re-arms the same row.
+This constrains the citation list, **not every claim in the prose**. The 25-entry
+corpus is hand-transcribed and not comprehensively verified; its verification flags
+are visible in the UI. Risk scoring is a deterministic heuristic, not a legal assessment.
 
-No key or `NYAY_OFFLINE=1` → the same engine runs on recorded fixture answers and
-the plan panel says so in an amber banner. It exists so a reviewer with no quota
-sees the real code path, not to make the app look smarter.
+## Run locally
 
-## Run it
+Requirements: Flutter **3.44.4** / Dart **3.12.2**, Serverpod CLI **4.0.3**,
+Python 3.10+, and the database/container prerequisites required by your local
+Serverpod installation. The complete sequence, including project generation,
+migrations, offline mode, and live mode, is in the **[runbook](docs/RUNBOOK.md)**.
 
 ```bash
-./scripts/bootstrap.sh ../play        # creates the Serverpod project + applies this code
+git clone --branch arena/7eece4c1-nyaysaathi-1-0 https://github.com/itsZaid05/NYAYSAATHI_1.0.git ~/nyaysaathi
 ```
 
-or the long way in [`docs/RUNBOOK.md`](docs/RUNBOOK.md). Then:
+Start with `NYAY_OFFLINE=1`. No Gemini account or key is needed for sample mode.
+Its answers are **hand-written fixtures**, not personalized legal guidance and
+not recordings of live responses. Live mode requires your own Google AI Studio
+key; availability, quotas, and pricing depend on that service.
 
-```bash
-cd play/nyay/nyay_server && serverpod generate
-cd play/nyay && serverpod start       # press M, apply the migration, then R
-export GEMINI_API_KEY=...             # optional; skip to run on fixtures
-cd play/nyay/nyay_flutter && flutter run -d chrome
+Never commit a key. Set `GEMINI_API_KEY` in the **server's environment**, or use
+its ignored `config/passwords.yaml`. Never pass it through Flutter build flags.
+
+## Repository map
+
+```text
+overlay/
+  server/     Models, endpoints, services, corpus, future calls, unit tests, config
+  flutter/    Intake and plan screens, client setup, browser helpers, shared widgets
+scripts/      Bootstrap, overlay application, source audit
+docs/         Runbook, limitations, AI-use disclosure, submission text
 ```
 
-Tests and analysis:
+After the runbook's project-import step, `nyay_server/`, `nyay_client/`, and
+`nyay_flutter/` belong at this repository's root. Keep `overlay/` alongside them
+and synchronize fixes before reapplying it. The earlier static JS prototype and
+recovery bundle have been removed from the current tree; the previous Git commits
+retain the recovery artifact.
 
-```bash
-cd play/nyay/nyay_server
-dart analyze --fatal-infos
-dart test test/unit
-python3 ../../scripts/audit.py         # model YAML + call-shape consistency check
-```
+## Verification and submission
 
-## Read these before trusting a claim
+- [Build and run instructions](docs/RUNBOOK.md)
+- [Known limitations and privacy boundaries](docs/LIMITATIONS.md)
+- [AI-use disclosure](docs/AI_USE.md)
+- [Submission description and outstanding checklist](docs/SUBMISSION.md)
 
-- [`docs/LIMITATIONS.md`](docs/LIMITATIONS.md) — including that **no auth** is in
-  this build, and what replaces it.
-- [`docs/AI_USE.md`](docs/AI_USE.md) — required disclosure: what the agent wrote,
-  what a human ran.
-- [`docs/SUBMISSION.md`](docs/SUBMISSION.md) — the entry text.
-
-## What this app will not do
-
-It will not name a lawyer, predict an outcome, or tell you what a court will
-decide. Anything that looks dangerous escalates to 112 (or 181) before it
-suggests paperwork. It is legal information, and it says so on the screen that
-shows the answer.
+The demo video URL and runtime evidence still need to be supplied. There is no
+hosted deployment claimed by this repository.

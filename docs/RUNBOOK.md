@@ -1,180 +1,237 @@
-# RUNBOOK — do these, in this order
+# Build and run
 
-Every command is one line. Nothing here has been run by the person who wrote the
-code (that sandbox had no Dart or Postgres), so treat the first compile error as
-expected and fix it — the message will name the file. Times assume you start from
-nothing and have about two hours.
+These commands target **Flutter 3.44.4 / Dart 3.12.2** and **Serverpod CLI
+4.0.3**. They are instructions, not a record of a successful run. Stop at the
+first error and resolve it before proceeding. Do not paste API keys into logs,
+issues, or chat.
 
-## 0. What you need installed
+Commands assume a Unix-like shell and this checkout at `~/nyaysaathi`. If you
+already have the repository elsewhere, substitute that path consistently.
+Run one command at a time when working with the coding agent and share its output.
+
+## 1. Clone the submission branch
+
+```bash
+git clone --branch arena/7eece4c1-nyaysaathi-1-0 https://github.com/itsZaid05/NYAYSAATHI_1.0.git ~/nyaysaathi
+```
+
+The root should contain `overlay/`, `scripts/`, and `docs/`. If generated
+`nyay_server/`, `nyay_client/`, and `nyay_flutter/` packages are already present,
+skip project creation and overlay application; run from this root instead of
+`~/nyay-build/nyay` below.
+
+## 2. Check tools
 
 ```bash
 flutter --version
+```
+
+```bash
 dart --version
 ```
 
-You need Flutter **3.44.4 or newer** (which brings Dart 3.12.2). If `flutter` is not
-found, install the SDK and add `<flutter>/bin` to your PATH. Postgres is **not**
-needed: `serverpod start` starts its own.
-
 ```bash
 dart pub global activate serverpod_cli 4.0.3
+```
+
+```bash
 export PATH="$PATH:$HOME/.pub-cache/bin"
+```
+
+```bash
 serverpod --version
 ```
 
-If the last line prints `4.0.3`, you are ready.
+Expect CLI version 4.0.3. Have Chrome and the database/container prerequisites
+required by your Serverpod installation available. Verify startup rather than
+assuming PostgreSQL is already running.
 
-## 1. Clone this repository
+## 3. Generate a fresh project
 
 ```bash
-cd ~
-git clone https://github.com/itsZaid05/nyay-saathi.git
-cd nyay-saathi
+mkdir -p ~/nyay-build
 ```
 
-## 2. Create the Serverpod project and apply this code onto it
+```bash
+cd ~/nyay-build
+```
 
 ```bash
-mkdir -p ~/play && cd ~/play
 serverpod create nyay --template fullstack --database --webapp --ide none
 ```
 
-Answer the prompts: **PostgreSQL**, database name **nyay**, role **postgres**, leave
-the port empty, and when it offers to run the server choose **no** (or press `Ctrl-C`
-when it starts). Then:
+Expected: a `nyay/` directory containing the server, client, and Flutter packages.
+Follow the CLI's database prompts and stop before running the app. If `--ide none`
+is rejected, remove only that flag and retry. Do not create a project over an
+existing one with local changes.
+
+Apply the application sources:
 
 ```bash
-python3 ~/nyay-saathi/scripts/apply_overlay.py ~/play/nyay
+python3 ~/nyaysaathi/scripts/apply_overlay.py ~/nyay-build/nyay
 ```
 
-It prints each file it writes, ends with `N files written.`, and tells you the next
-three commands. If it says `no nyay_server`, you are in the wrong folder — the path you
-pass must *contain* `nyay_server/`.
+Expected: a list of copied files and `N files written.` The script preserves an
+existing `config/passwords.yaml`; edit database credentials there to match your
+local setup. Reapplying the overlay overwrites application source files—copy any
+fixes back to `overlay/` first. The optional `scripts/bootstrap.sh` automates this
+creation/application step, but is not a substitute for checking its output.
 
-## 3. Generate the Dart code from the models
+## 4. Generate protocol and client code
 
 ```bash
-cd ~/play/nyay/nyay_server
+cd ~/nyay-build/nyay/nyay_server
+```
+
+```bash
 serverpod generate
 ```
 
-You should see it write `lib/src/generated/protocol.dart`, `endpoints.dart`,
-`serverpod.dart` and `nyay_client/lib/src/protocol.dart`. **If it errors, stop and fix
-that error** — it will name the `.spy.yaml` file and the field. Every later step
-depends on this one.
+Expected: generated server protocol, endpoint dispatch, server setup, and
+`nyay_client` code. If it fails, retain the complete error and fix the named model
+or endpoint before continuing. Do not hand-write generated protocol files.
 
-## 4. Start it, create the database schema
+Known 4.0.3 call shapes used by this source: `withSession(callback)`;
+`Serverpod(args)` imported from generated server setup; integer model relations;
+future-call sites without a session argument; awaited `postMessage`;
+`getServerUrl` and `FlutterConnectivityMonitor` from `serverpod_flutter`.
+
+## 5. Start offline and migrate
+
+In the server terminal, **before** starting the server:
 
 ```bash
-cd ~/play/nyay
+export NYAY_OFFLINE=1
+```
+
+```bash
+cd ~/nyay-build/nyay
+```
+
+```bash
 serverpod start
 ```
 
-The menu appears. Press **M** (migrations), wait for it to print the diff — it should
-list `legal_case`, `intake_turn`, `legal_provision`, `advice` — approve, then press
-**R** to restart. You want to see in the log:
+Use **M** to create/apply the migration when offered and **R** to restart.
+Check the migration includes `legal_case`, `intake_turn`, `legal_provision`, and
+`advice`. Keep the generated migration in version control. Confirm a log such as
+`seeded 25 provisions into the statute index`. If startup fails before migration,
+resolve the schema/database setup using the CLI's error output, then restart.
 
-```
-Seeded 25 provisions into the statute index     (wording may differ)
-```
-
-That is the corpus. Without it nothing can be cited.
-
-## 5. The model key (optional but this is the product)
-
-Get a key from Google AI Studio, then either:
+In a second terminal:
 
 ```bash
-export GEMINI_API_KEY=AIza...            # same terminal, before step 6
+cd ~/nyay-build/nyay/nyay_flutter
 ```
 
-or edit `~/play/nyay/nyay_server/config/passwords.yaml` (already git-ignored) and put
-the key on the `geminiApiKey:` line under `development:`, then restart with **R**.
-
-Skip it entirely and the app runs on recorded fixtures, with a banner that says so —
-useful for the 10 seconds of the demo where the network is not the story.
-
-## 6. Run the web app
-
 ```bash
-cd ~/play/nyay/nyay_flutter
 flutter run -d chrome
 ```
 
-If it says no web device: `flutter config --enable-web && flutter devices`.
+Check the generated app's server URL configuration. The browser must be able to
+reach the API. For a remote deployment, use a reachable HTTPS API URL; a browser's
+`localhost` is not a remote development machine.
 
-## 7. Click through it once, fully
+## 6. Verify the complete offline flow
 
-1. Type at least 40 characters about a real kind of problem (the example in the hint
-   text works). Press **Sort this out**.
-2. You should get a triage card: area, urgency, a risk badge, "why the risk is what it
-   is", "still needed", and up to three questions. Check the browser's Network tab: one
-   `intake.open` call.
-3. Answer a question. The card re-runs. Skip is allowed.
-4. Press **Write my plan**. The plan screen shows stage chips moving — Retrieving →
-   Writing → Validating → Saving → Ready — while the request has already returned.
-5. Read the bottom of the plan: **What this rests on** must list provisions with a
-   code, a quote, the India Code URL and, where applicable, "Wording not yet checked".
-   If it says "no provision was cited", that is the app being honest, not broken.
-6. Press the download icon. A one-page PDF opens in your downloads with the same text
-   and the model/prompt line in the footer.
-7. Refresh the page. It reopens on the same case, because the reference is in
-   localStorage and the plan is a row.
+Use a fictional workplace example, since that is what the hand-written fixtures
+represent. Do not use sensitive real-case details.
 
-Anything that does not survive step 7 is a bug worth fixing before you record.
+1. Enter at least 40 characters, then select **Sort this out**.
+2. Check the summary, risk factors, missing evidence, questions, and sample label.
+3. Answer a question; verify triage updates on the same reference.
+4. Select **Write my plan**. Check progress stages and the saved plan.
+5. Inspect citations and verification warnings. A missing source must not be
+   presented as a verified legal basis.
+6. Download the PDF and open it. Check the reference, sample notice, and any
+   truncation warning.
+7. Refresh; verify the same case and saved plan return without another model call.
+8. Edit the description and re-triage. Check that a regenerated plan reflects the
+   updated case, rather than silently showing an obsolete one.
+9. Stop/restart the server and test failed-request retry and stream reconnection.
 
-## 8. Tests and analysis
+Record actual failures in `LIMITATIONS.md`. A sample plan appearing is not
+proof that the live model works.
+
+## 7. Test live mode
+
+Stop the server, unset the override in the same terminal, and configure the key
+privately in `nyay_server/config/passwords.yaml` under `development.geminiApiKey`
+or in the server environment. The key must not be a Flutter build variable.
 
 ```bash
-cd ~/play/nyay/nyay_server
+unset NYAY_OFFLINE
+```
+
+Restart with `serverpod start`, repeat the flow, and check the model notice names
+`gemini-2.5-flash`. If both environment and password keys are absent, sample mode
+is expected. No silent fallback to samples should disguise a failed live request.
+
+Only replace `fixture_answers.dart` after obtaining and sanitizing real responses.
+Document their model, prompt version, and collection method without saving keys
+or personal case data. Until then retain the hand-written-fixture disclosure.
+
+## 8. Analyze and test
+
+In `nyay_server/`:
+
+```bash
 dart analyze --fatal-infos
+```
+
+```bash
 dart test test/unit
 ```
 
-`dart test` should print ~14 passing tests. If `dart analyze` reports unused
-imports or `directives_ordering`, `dart format .` fixes the formatting ones.
+In `nyay_client/`, run `dart analyze --fatal-infos`. In `nyay_flutter/`, run
+`flutter analyze --fatal-infos`. Resolve every error; formatting alone does not
+fix missing imports, unused variables, or API incompatibilities.
 
-## 9. Put the working project into the repository, then record
-
-The clone holds the hand-written source; the project in `~/play/nyay` is what actually
-runs. Bring the generated packages back so the repository can be cloned and run by
-someone else:
+From `~/nyaysaathi`, install the audit dependency in a virtual environment:
 
 ```bash
-rsync -a --exclude '.git' --exclude '.dart_tool' --exclude 'build' \
-  ~/play/nyay/ ~/nyay-saathi/
-cd ~/nyay-saathi
-ls                     # want: nyay_server  nyay_flutter  nyay_client  overlay  scripts  docs
-git status --short | head -20
+python3 -m venv .venv
 ```
-
-`config/passwords.yaml` must **not** appear in that list — `.gitignore` keeps it out.
-Commit before recording, so the video and the code are the same run.
-
-Two minutes maximum, running on Chrome against the local server. Storyboard:
-sign-in-free start → type the narrative → the questions → the triage card → **watch
-the chips move** while it writes → the citations → the PDF download → refresh to show
-it persisted. End on the reference number, so the run is verifiable.
 
 ```bash
-cd ~/nyay-saathi
-git add -A && git commit -m "Generated Serverpod project, migration, first working run"
-git push
+.venv/bin/python -m pip install -r scripts/requirements-dev.txt
 ```
 
-Commit **from the clone** after step 3–7 so the second commit carries your real fixes.
+```bash
+.venv/bin/python scripts/audit.py
+```
 
-## If something fails
+The source audit is heuristic, not a Dart compiler or compatibility test.
+Run the setup-script tests with:
 
-| What you see | What it means / do this |
-| --- | --- |
-| `serverpod create` rejects `--ide none` | drop that flag; the rest of the command is unchanged |
-| `serverpod generate` fails on a `.spy.yaml` | it names the field. The two things most likely to be off are `default=` on an enum field and `relation(parent=legal_case)`; fix the YAML and re-run |
-| `Undefined name 'Session'` anywhere in `lib/src/services/` | add `import 'package:serverpod/serverpod.dart';` to that file |
-| `getPassword` not found on `Serverpod` | your minor version moved it to `pod.passwords.get(key)`; one call site, `services/config.dart` |
-| `postMessage` / `createStream` type error | `AdviceProgress` must stay a Serverpod model (it is) and `channel` must be the same string on both sides: `case_` + reference |
-| Flutter: `Target of URI doesn't exist: 'package:nyay_client/nyay_client.dart'` | you skipped step 3, or you ran `flutter run` from the wrong folder |
-| `client.intake` has no member `open` | the endpoint file is not in `nyay_server/lib/src/endpoints/` |
-| The plan never leaves "Queued" | the future call needs the restart: press **R** in the Serverpod menu; then check the log for `AdviceFutureCall` |
-| Every screen shows the amber fixture banner | no key was picked up — check step 5, or accept it for the offline demo |
-| `dart test test/unit` fails on `Urgency` | run `serverpod generate` first; the tests import generated code |
+```bash
+python3 -m unittest discover -s scripts/tests -v
+```
+
+Run `dart format .` in each generated package and on both overlay `lib/` trees
+and the overlay unit tests. Copy any source fixes between the generated packages
+and `overlay/` deliberately; do not overwrite one with stale files.
+
+## 9. Bring the verified project into this repository
+
+Preview the copy first:
+
+```bash
+rsync -an --exclude '.git' --exclude '.dart_tool' --exclude 'build' --exclude '.serverpod' --exclude '.env*' --exclude 'passwords.yaml' --exclude '.flutter-plugins*' --exclude 'ephemeral' --exclude 'Pods' --exclude '.symlinks' ~/nyay-build/nyay/ ~/nyaysaathi/
+```
+
+Review that output, then repeat with `-a` instead of `-an`. Keep `overlay/`,
+`scripts/`, `docs/`, this README, and the repository's ignore rules; the overlay
+script does not copy those into the build directory. Do not use `--delete`.
+Never copy database volumes, credentials, local recordings, or build artifacts.
+
+Review `git status --short` and the staged diff before committing. Ensure ignored
+`config/passwords.yaml` files are not tracked. Push only the assigned branch:
+
+```bash
+git push origin arena/7eece4c1-nyaysaathi-1-0
+```
+
+Finally, do a fresh-clone run from the submitted branch, complete
+[SUBMISSION.md](SUBMISSION.md), and supply the video URL. Do not mark verification
+items complete without the corresponding output or manual observation.

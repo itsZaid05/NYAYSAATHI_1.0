@@ -9,3 +9,16 @@
 **/build/
 **/.serverpod/
 **/coverage/
+
+# Local environments, credentials, editor and platform artifacts.
+.venv/
+__pycache__/
+*.py[cod]
+.env.*
+.DS_Store
+.idea/
+.vscode/
+**/ephemeral/
+**/.symlinks/
+**/Pods/
+*.bundle
