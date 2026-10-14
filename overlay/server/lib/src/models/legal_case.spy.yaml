@@ -15,6 +15,7 @@ fields:
   timeSensitivity: String?
   safetyEscalation: bool, default=false
   promptVersion: String?
+  model: String?
   createdAt: DateTime
   updatedAt: DateTime
 

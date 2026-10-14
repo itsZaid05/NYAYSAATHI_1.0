@@ -3,8 +3,8 @@
 /// A JSON answer from a model is unbounded text: it can be 40,000 characters
 /// long, contain 500 list items, or name an enum value that does not exist. The
 /// database column and the UI both have limits, so the limits are enforced at the
-/// boundary and a violation is an error, not a silent truncation of something the
-/// user is about to act on.
+/// boundary. Text and lists are capped, numeric scores are clamped, and
+/// malformed required values are rejected. Citation indexes are never clamped.
 class Payload {
   Payload(this._json, {this.maxStrings = 1400});
 
@@ -67,6 +67,14 @@ class Payload {
     return _clampInt(parsed, min, max);
   }
 
+  /// A citation must address an actual retrieved row. Never turn an invented
+  /// index into a valid one by clamping it to the nearest row.
+  int? citationIndex(String key, int count) {
+    final value = _raw(key);
+    if (value is! int || value < 1 || value > count) return null;
+    return value;
+  }
+
   double real(String key, {double? min, double? max, double fallback = 0, bool required = false}) {
     final value = _raw(key);
     if (value == null) {
@@ -74,7 +82,7 @@ class Payload {
       return fallback;
     }
     final parsed = value is num ? value.toDouble() : double.tryParse('$value'.trim());
-    if (parsed == null) throw FieldError(key, 'not a number');
+    if (parsed == null || !parsed.isFinite) throw FieldError(key, 'not a finite number');
     final low = min ?? double.negativeInfinity;
     final high = max ?? double.infinity;
     return parsed < low ? low : (parsed > high ? high : parsed);
@@ -121,10 +129,12 @@ class Payload {
       return const [];
     }
     if (value is! List) throw FieldError(key, 'expected a list');
-    return value
-        .whereType<Map<String, Object?>>()
-        .take(maxItems)
-        .toList(growable: false);
+    if (value.any((item) => item is! Map<String, Object?>)) {
+      throw FieldError(key, 'expected objects');
+    }
+    final objects = value.cast<Map<String, Object?>>().take(maxItems).toList(growable: false);
+    if (required && objects.isEmpty) throw FieldError(key, 'empty');
+    return objects;
   }
 
   static String _normalize(String text) => text

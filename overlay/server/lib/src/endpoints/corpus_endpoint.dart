@@ -5,13 +5,11 @@ import '../services/corpus_service.dart';
 
 /// The index the engine is allowed to cite, exposed on purpose.
 ///
-/// The Sources screen shows a user what retrieval found for their own facts,
+/// Search exposes what retrieval found for a query,
 /// with the score and the reason each provision matched. Making that readable is
 /// cheaper than asking people to trust a citation list.
 class CorpusEndpoint extends Endpoint {
   Future<int> count(Session session) async => LegalProvision.db.count(session);
-
-  Future<int> seed(Session session) async => CorpusService.seed(session);
 
   /// What the retriever would hand the model for this text.
   Future<List<CorpusHit>> search(

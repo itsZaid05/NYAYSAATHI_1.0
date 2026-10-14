@@ -1,4 +1,4 @@
-/// Recorded answers, used when there is no API key or `NYAY_OFFLINE=1`.
+/// Hand-written sample answers, used when there is no API key or `NYAY_OFFLINE=1`.
 ///
 /// These stand in for the model, never for the engine: retrieval, schema
 /// validation, citation filtering, risk scoring and storage all still run.

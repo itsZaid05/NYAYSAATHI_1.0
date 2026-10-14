@@ -9,7 +9,7 @@ void main() async {
   runApp(const NyayApp());
 }
 
-/// NyaySaathi — a confidential first step for someone in India with a legal
+/// NyaySaathi — an informational first step for someone in India with a legal
 /// problem and no lawyer.
 ///
 /// One flow, on purpose: say what happened, answer what the server asks, read a

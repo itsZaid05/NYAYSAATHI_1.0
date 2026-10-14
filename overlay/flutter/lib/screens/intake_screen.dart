@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:nyay_client/nyay_client.dart';
 
@@ -7,8 +5,6 @@ import '../browser.dart';
 import '../client.dart';
 import '../widgets.dart';
 import 'plan_screen.dart';
-
-/// The one screen a person sees before there is a plan.
 
 /// Human label for a stage name coming off the stream.
 String stageLabel(String stage) => switch (stage) {
@@ -21,6 +17,7 @@ String stageLabel(String stage) => switch (stage) {
       'failed' => 'Could not finish',
       _ => stage,
     };
+
 ///
 /// Three states, all driven by the server's answer: describe it, answer what it
 /// asks, send it. Nothing is decided in the widget — the domain, the urgency, the
@@ -40,10 +37,10 @@ class _IntakeScreenState extends State<IntakeScreen> {
 
   TriageResult? _result;
   String? _reference;
+  String? _triagedNarrative;
   bool _busy = false;
   String? _error;
   int _questionIndex = 0;
-  StreamSubscription<AdviceProgress>? _progress;
   String? _stage;
 
   @override
@@ -77,10 +74,12 @@ class _IntakeScreenState extends State<IntakeScreen> {
           timeSensitivity: legalCase.timeSensitivity,
           safetyEscalation: legalCase.safetyEscalation,
           promptVersion: legalCase.promptVersion,
+          model: legalCase.model,
         );
         _controller.text = legalCase.narrative;
+        _triagedNarrative = legalCase.stage == CaseStage.intake ? null : legalCase.narrative;
       });
-      await _gotoPlanIfReady(stored);
+      if (legalCase.stage == CaseStage.advised) await _gotoPlanIfReady(stored);
     } on Exception catch (e) {
       if (mounted) setState(() => _error = 'Could not reopen your case: $e');
     } finally {
@@ -110,10 +109,15 @@ class _IntakeScreenState extends State<IntakeScreen> {
       setState(() {
         _result = result;
         _reference = result.reference;
+        _triagedNarrative = text;
         _questionIndex = 0;
       });
       storeReference(result.reference);
     } on Exception catch (e) {
+      if (e is AdviceUnavailableException && e.caseReference != null) {
+        storeReference(e.caseReference!);
+        if (mounted) setState(() => _reference = e.caseReference);
+      }
       if (mounted) setState(() => _error = _readable(e));
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -155,17 +159,17 @@ class _IntakeScreenState extends State<IntakeScreen> {
   Future<void> _writePlan() async {
     final reference = _reference;
     if (reference == null) return;
+    if (_controller.text.trim() != _triagedNarrative) {
+      setState(() => _error = 'Your description changed. Re-run triage before writing a plan.');
+      return;
+    }
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
-      await client.corpus.seed();
       await client.advice.queue(reference);
-      _progress?.cancel();
-      _progress = client.advice.watch(reference).listen((event) {
-        if (mounted) setState(() => _stage = event.stage.name);
-      });
+      _stage = 'queued';
       if (!mounted) return;
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
@@ -176,8 +180,6 @@ class _IntakeScreenState extends State<IntakeScreen> {
           ),
         ),
       );
-      _progress?.cancel();
-      _progress = null;
     } on Exception catch (e) {
       if (mounted) setState(() => _error = _readable(e));
     } finally {
@@ -205,7 +207,6 @@ class _IntakeScreenState extends State<IntakeScreen> {
 
   @override
   void dispose() {
-    _progress?.cancel();
     _controller.dispose();
     for (final controller in _answerControllers.values) {
       controller.dispose();
@@ -245,8 +246,9 @@ class _IntakeScreenState extends State<IntakeScreen> {
                 const SizedBox(height: 6),
                 Text(
                   'Describe the problem in your own words. This is legal '
-                  'information, not legal advice, and nothing you type here is '
-                  'shared with anyone but this server.',
+                  'information, not legal advice. The server stores your description; '
+                  'live mode sends redacted context to Google. Avoid names and sensitive '
+                  'identifiers. If you are in immediate danger, call 112.',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -270,6 +272,7 @@ class _IntakeScreenState extends State<IntakeScreen> {
                         enabled: !_busy,
                         minLines: result == null ? 6 : 3,
                         maxLines: 12,
+                        maxLength: 6000,
                         decoration: const InputDecoration(
                           hintText: 'For example: my manager has been sending me '
                               'messages for eight weeks. I complained in writing on '
@@ -303,6 +306,8 @@ class _IntakeScreenState extends State<IntakeScreen> {
                 ),
                 if (result != null) ...[
                   const SizedBox(height: 16),
+                  ModelNotice(model: result.model, promptVersion: result.promptVersion),
+                  const SizedBox(height: 12),
                   _TriageCard(result: result, busy: _busy),
                 ],
                 if (showingQuestion) ...[
@@ -324,10 +329,13 @@ class _IntakeScreenState extends State<IntakeScreen> {
                           enabled: !_busy,
                           minLines: 3,
                           maxLines: 8,
+                          maxLength: 1200,
                           decoration: const InputDecoration(hintText: 'Your answer'),
                         ),
                         const SizedBox(height: 10),
-                        Row(
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
                           children: [
                             FilledButton(
                               onPressed: _busy
@@ -340,7 +348,6 @@ class _IntakeScreenState extends State<IntakeScreen> {
                               onPressed: _busy ? null : _next,
                               child: const Text('Skip'),
                             ),
-                            const Spacer(),
                             TextButton(
                               onPressed: _busy ? null : _writePlan,
                               child: const Text('Enough - write my plan'),
@@ -359,7 +366,7 @@ class _IntakeScreenState extends State<IntakeScreen> {
                       icon: const Icon(Icons.auto_awesome),
                       label: Text(_stage == null
                           ? 'Write my plan'
-                          : 'In plan: ${stageLabel(_stage)}'),
+                          : 'In plan: ${stageLabel(_stage!)}'),
                     ),
                   ),
                 ],
@@ -376,17 +383,26 @@ class _IntakeScreenState extends State<IntakeScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Keep this reference. It is the only way back into this file.',
-                        style: theme.textTheme.bodySmall,
+                      Expanded(
+                        child: Text(
+                          'Keep your reference private. Anyone with it can read this case.',
+                          style: theme.textTheme.bodySmall,
+                        ),
                       ),
                       TextButton(
-                        onPressed: () {
+                        onPressed: _busy ? null : () {
                           forgetReference();
                           setState(() {
                             _reference = null;
+                            _triagedNarrative = null;
                             _result = null;
+                            _error = null;
+                            _stage = null;
                             _questionIndex = 0;
+                            for (final controller in _answerControllers.values) {
+                              controller.dispose();
+                            }
+                            _answerControllers.clear();
                           });
                           _controller.clear();
                         },
@@ -405,12 +421,7 @@ class _IntakeScreenState extends State<IntakeScreen> {
 
   static String _readable(Object error) {
     final text = '$error';
-    if (text.contains('AdviceUnavailableException')) {
-      final reason = RegExp(r'reason=([^}]+)').firstMatch(text)?.group(1)?.trim();
-      return reason == null
-          ? 'The model could not answer. Your description is saved - try again.'
-          : '$reason. Your description is saved, so nothing was lost.';
-    }
+    if (error is AdviceUnavailableException) return error.reason;
     if (text.contains('Client') || text.contains('SocketException')) {
       return 'Cannot reach the server. Is `serverpod start` running?';
     }
@@ -435,7 +446,7 @@ class _TriageCard extends StatelessWidget {
     };
     return SectionCard(
       title: 'How this was sorted',
-      subtitle: busy ? 're-running…' : 'server-side triage, not a guess',
+      subtitle: busy ? 're-running…' : 'AI-assisted classification · check the facts',
       trailing: RiskBadge(
         score: result.riskScore,
         label: switch (result.urgency) {

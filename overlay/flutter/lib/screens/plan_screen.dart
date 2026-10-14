@@ -30,13 +30,22 @@ class _PlanScreenState extends State<PlanScreen> {
   bool _busy = true;
   String? _error;
   StreamSubscription<AdviceProgress>? _sub;
-  List<CorpusHit> _hits = const [];
+  Timer? _poll;
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
     _stage = widget.stage;
     unawaited(_load());
+    // Stored rows are authoritative. Poll while pending so a missed stream
+    // event or reconnect does not leave the screen stuck on "Writing".
+    _poll = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (_advice == null || _advice!.status == AdviceStatus.queued ||
+          _advice!.status == AdviceStatus.running) {
+        unawaited(_load(silent: true));
+      }
+    });
     _sub = client.advice.watch(widget.reference).listen(
       (event) {
         if (!mounted) return;
@@ -54,31 +63,32 @@ class _PlanScreenState extends State<PlanScreen> {
   @override
   void dispose() {
     _sub?.cancel();
+    _poll?.cancel();
     super.dispose();
   }
 
-  Future<void> _load() async {
-    setState(() => _busy = true);
+  Future<void> _load({bool silent = false}) async {
+    if (_loading || !mounted) return;
+    _loading = true;
+    if (!silent) setState(() => _busy = true);
     try {
       final advice = await client.advice.latest(widget.reference);
-      final steps = advice?.steps ?? const <NextStep>[];
-      final planWords = [
-        if (advice != null) advice.headline ?? '',
-        for (final step in steps) step.title,
-      ].join(' ');
-      final hits = planWords.trim().isEmpty
-          ? const <CorpusHit>[]
-          : await client.corpus.search(planWords, null);
       if (!mounted) return;
       setState(() {
         _advice = advice;
-        _hits = hits;
+        _stage = switch (advice?.status) {
+          AdviceStatus.ready => 'ready',
+          AdviceStatus.failed => 'failed',
+          AdviceStatus.queued => 'queued',
+          _ => _stage == 'ready' || _stage == 'failed' ? 'writing' : _stage,
+        };
         _error = null;
       });
     } on Exception catch (e) {
       if (mounted) setState(() => _error = '$e');
     } finally {
-      if (mounted) setState(() => _busy = false);
+      _loading = false;
+      if (!silent && mounted) setState(() => _busy = false);
     }
   }
 
@@ -86,6 +96,8 @@ class _PlanScreenState extends State<PlanScreen> {
     setState(() => _busy = true);
     try {
       await client.advice.retry(widget.reference);
+      if (mounted) setState(() => _stage = 'queued');
+      await _load(silent: true);
     } on Exception catch (e) {
       if (mounted) setState(() => _error = '$e');
     } finally {
@@ -117,7 +129,7 @@ class _PlanScreenState extends State<PlanScreen> {
         actions: [
           IconButton(
             tooltip: 'Download the one-page brief',
-            onPressed: pending ? null : _download,
+            onPressed: pending || _busy ? null : _download,
             icon: const Icon(Icons.download_rounded),
           ),
           IconButton(
@@ -220,12 +232,15 @@ class _PlanScreenState extends State<PlanScreen> {
                     ),
                   ],
                   const SizedBox(height: 16),
-                  _Authorities(advice: advice, hits: _hits),
+                  _Authorities(advice: advice),
                   const SizedBox(height: 16),
                   SectionCard(
                     title: 'Take this with you',
                     subtitle: 'built on the server from the rows on this screen',
-                    child: Row(
+                    child: Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         FilledButton.icon(
                           onPressed: _busy ? null : _download,
@@ -344,11 +359,19 @@ class _Draft extends StatelessWidget {
         tooltip: 'Copy',
         icon: const Icon(Icons.copy_rounded, size: 18),
         onPressed: () async {
-          await copyText(draft.body);
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Copied. Fill the [BRACKETS] before sending.')),
-            );
+          try {
+            await copyText(draft.body);
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Copied. Fill the [BRACKETS] before sending.')),
+              );
+            }
+          } on Object {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Clipboard unavailable. Select and copy the text below.')),
+              );
+            }
           }
         },
       ),
@@ -358,10 +381,9 @@ class _Draft extends StatelessWidget {
 }
 
 class _Authorities extends StatelessWidget {
-  const _Authorities({required this.advice, required this.hits});
+  const _Authorities({required this.advice});
 
   final Advice advice;
-  final List<CorpusHit> hits;
 
   @override
   Widget build(BuildContext context) {
@@ -370,7 +392,7 @@ class _Authorities extends StatelessWidget {
     return SectionCard(
       title: 'What this rests on',
       subtitle: authorities.isEmpty
-          ? 'no provision was cited - the plan says the law here is unclear'
+          ? 'No source was cited. Confirm the proposed steps with a professional.'
           : '${authorities.length} provision(s), each copied from the statute index',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -412,7 +434,7 @@ class _Authorities extends StatelessWidget {
             ),
           if (advice.groundingQueries != null && advice.groundingQueries!.isNotEmpty) ...[
             const Divider(height: 24),
-            Text('Search queries the model was allowed to run',
+            Text('Model search metadata and notes',
                 style: theme.textTheme.labelLarge),
             for (final query in advice.groundingQueries!)
               Text(query, style: theme.textTheme.bodySmall),

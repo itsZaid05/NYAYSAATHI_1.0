@@ -6,3 +6,4 @@ exception: true
 fields:
   reason: String
   retryAfterSeconds: int?
+  caseReference: String?

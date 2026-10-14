@@ -1,3 +1,4 @@
+import 'dart:js_interop';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
@@ -24,7 +25,7 @@ void forgetReference() {
 }
 
 /// Saves a server-built PDF without a plugin: a data URL and a synthetic click on
-/// an anchor. It works offline, keeps the dependency list at zero, and never
+/// an anchor. This browser helper uses package:web and never
 /// uploads anything the user has not already sent to the server.
 Future<void> saveBytesAsFile(ByteData bytes, String fileName) async {
   if (!kIsWeb) {
@@ -47,5 +48,5 @@ Future<void> saveBytesAsFile(ByteData bytes, String fileName) async {
 /// file ever being written to disk.
 Future<void> copyText(String text) async {
   if (!kIsWeb) return;
-  await web.window.navigator.clipboard.writeText(text);
+  await web.window.navigator.clipboard.writeText(text).toDart;
 }

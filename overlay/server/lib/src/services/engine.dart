@@ -55,9 +55,9 @@ class AdviceEngine {
   }) async {
     await Limits.check(session, caseId);
 
-    final redacted = redactPii(clip(narrative, maxNarrative));
+    final redacted = redactPii(narrative);
     final answers = [
-      for (final turn in turns) '<${turn.role}> ${clip(turn.content, 400)}',
+      for (final turn in turns) '<${turn.role}> ${clip(redactPii(turn.content).text, 400)}',
     ].join('\n');
     final description = '${redacted.text}\n$answers';
 
@@ -67,7 +67,7 @@ class AdviceEngine {
     final call = await provider.generate(
       system: kSystemPrompt,
       prompt: contextForTriage(
-        narrative: redacted.text,
+        narrative: clip(redacted.text, maxNarrative),
         answers: answers.isEmpty ? '(none yet)' : answers,
         corpus: context,
       ),
@@ -81,7 +81,7 @@ class AdviceEngine {
     final safety = payload.boolean('safetyEscalation');
     final unclear = payload.boolean('statuteUnclear');
     final summary = payload.string('summary', max: 420, required: true);
-    final keyFacts = payload.strings('keyFacts', maxItems: 8, itemMax: 220, required: true);
+    payload.strings('keyFacts', maxItems: 8, itemMax: 220, required: true);
     final missing = payload.strings('missingEvidence', maxItems: 6, itemMax: 220);
     final timeSensitivity = payload.string('timeSensitivity', max: 220);
     final questions = <IntakeQuestion>[];
@@ -143,6 +143,7 @@ class AdviceEngine {
         ..timeSensitivity = timeSensitivity.isEmpty ? null : timeSensitivity
         ..safetyEscalation = risk.escalate
         ..promptVersion = kPromptVersion
+        ..model = isLive ? provider.name : null
         ..updatedAt = now,
     );
 
@@ -203,10 +204,12 @@ class AdviceEngine {
         orderBy: (t) => t.createdAt.asc(),
       );
       final description = [
-        for (final turn in turns) '<${turn.role}> ${clip(turn.content, 400)}',
         legalCase.narrative,
+        for (final turn in turns.where((turn) => turn.questionId != 'narrative'))
+          '<${turn.role}> ${clip(redactPii(turn.content).text, 400)}',
       ].join('\n');
-      final redacted = redactPii(clip(description, maxNarrative));
+      final sanitized = redactPii(description);
+      final redacted = Redacted(clip(sanitized.text, maxNarrative), sanitized.replaced);
 
       final hits = await corpus.retrieve(
         session: session,
@@ -221,7 +224,10 @@ class AdviceEngine {
       final call = await provider.generate(
         system: kAdviceSystemPrompt,
         prompt: contextForAdvice(
-          triage: _triageBlock(legalCase, redacted.replaced),
+          triage: redactPii(
+            '${_triageBlock(legalCase, redacted.replaced)}\n'
+            'case description and answers: ${redacted.text}',
+          ).text,
           corpus: context,
         ),
         schema: adviceSchema,
@@ -255,7 +261,6 @@ class AdviceEngine {
       await LegalCase.db.updateRow(
         session,
         legalCase
-          ..nextSteps = plan.steps
           ..stage = CaseStage.advised
           ..updatedAt = DateTime.now().toUtc(),
       );
@@ -286,6 +291,10 @@ class AdviceEngine {
     required bool force,
   }) async {
     final now = DateTime.now().toUtc();
+    final legalCase = await LegalCase.db.findById(session, caseId);
+    if (legalCase == null || legalCase.stage == CaseStage.intake) {
+      throw AdviceUnavailableException(reason: 'complete triage before requesting a plan');
+    }
     final existing = await Advice.db.find(
       session,
       where: (t) => t.caseId.equals(caseId),
@@ -294,22 +303,25 @@ class AdviceEngine {
     );
     if (existing.isNotEmpty) {
       final row = existing.first;
-      final fresh = row.status == AdviceStatus.ready &&
-          now.difference(row.updatedAt) < const Duration(hours: 6);
-      if (row.status == AdviceStatus.queued || row.status == AdviceStatus.running || fresh) {
+      if (row.status == AdviceStatus.queued || row.status == AdviceStatus.running) {
         return row.id!;
       }
-      if (!force && row.status == AdviceStatus.ready) return row.id!;
+      if (!force && row.status == AdviceStatus.ready && legalCase.stage == CaseStage.advised) {
+        return row.id!;
+      }
+      await Limits.check(session, caseId);
       await Advice.db.updateRow(
         session,
         row
           ..status = AdviceStatus.queued
+          ..pdfBytes = null
           ..errorMessage = null
           ..updatedAt = now,
       );
       await scheduleAdvice(session, row.id!);
       return row.id!;
     }
+    await Limits.check(session, caseId);
     final created = await Advice.db.insertRow(
       session,
       Advice(
@@ -403,7 +415,7 @@ class AdviceEngine {
     return pdf.build(
       header: 'NyaySaathi case brief • ${legalCase.reference}',
       footer: 'Generated ${_date(DateTime.now().toUtc())} by '
-          '${advice?.model ?? 'recorded fixtures'} • prompt ${advice?.promptVersion ?? kPromptVersion}',
+          '${advice?.model ?? 'hand-written fixtures'} • prompt ${advice?.promptVersion ?? kPromptVersion}',
     );
   }
 
@@ -414,7 +426,7 @@ class AdviceEngine {
     final steps = <NextStep>[];
     for (final raw in payload.objects('steps', maxItems: 8, required: true)) {
       final step = Payload(raw, maxStrings: 500);
-      final citedIndex = step.integer('authorityIndex', min: 1, max: hits.length, fallback: 0);
+      final citedIndex = step.citationIndex('authorityIndex', hits.length);
       steps.add(
         NextStep(
           title: step.string('title', max: 140, required: true),
@@ -425,7 +437,7 @@ class AdviceEngine {
           documents: step.strings('documents', maxItems: 6, itemMax: 120).isEmpty
               ? null
               : step.strings('documents', maxItems: 6, itemMax: 120),
-          authorityIndex: citedIndex < 1 ? null : citedIndex,
+          authorityIndex: citedIndex,
         ),
       );
     }
@@ -455,13 +467,13 @@ class AdviceEngine {
     List<RetrievedProvision> hits,
   ) {
     final cited = <int>{};
-    for (final raw in payload.objects('authorities', maxItems: hits.length)) {
-      final index = Payload(raw).integer('index', min: 1, max: hits.length, fallback: 0);
-      if (index > 0 && index <= hits.length) cited.add(index);
+    for (final raw in payload.objects('authorities', maxItems: 12)) {
+      final index = Payload(raw).citationIndex('index', hits.length);
+      if (index != null) cited.add(index);
     }
     for (final step in payload.objects('steps', maxItems: 8)) {
-      final index = Payload(step).integer('authorityIndex', min: 1, max: hits.length, fallback: 0);
-      if (index > 0 && index <= hits.length) cited.add(index);
+      final index = Payload(step).citationIndex('authorityIndex', hits.length);
+      if (index != null) cited.add(index);
     }
     if (cited.isEmpty) return null;
 
@@ -538,7 +550,7 @@ class AdviceEngine {
 
   static List<String>? _grounding(ModelJson call) {
     final out = <String>[
-      ...?call.queries,
+      ...call.queries,
       for (final citation in call.citations)
         if (citation.uri.isNotEmpty) citation.uri,
     ];

@@ -4,8 +4,8 @@ import 'package:nyay_server/src/generated/protocol.dart';
 import 'package:nyay_server/src/services/payload.dart';
 import 'package:nyay_server/src/services/pdf.dart';
 import 'package:nyay_server/src/services/redaction.dart';
-import 'package:nyay_server/src/services/risk.dart';
 import 'package:nyay_server/src/services/prompts.dart';
+import 'package:nyay_server/src/services/risk.dart';
 import 'package:test/test.dart';
 import 'package:yaml/yaml.dart';
 
@@ -51,6 +51,30 @@ void main() {
       );
     });
 
+    test('never clamps an invalid citation to a real source', () {
+      for (final value in [0, -1, 99, 1.5, '1', null]) {
+        expect(Payload({'index': value}).citationIndex('index', 3), isNull);
+      }
+      expect(Payload({'index': 1}).citationIndex('index', 0), isNull);
+      expect(Payload({'index': 2}).citationIndex('index', 3), 2);
+    });
+
+    test('rejects empty or malformed required object arrays', () {
+      for (final value in [[], ['not an object']]) {
+        expect(
+          () => Payload({'steps': value}).objects('steps', required: true),
+          throwsA(isA<FieldError>()),
+        );
+      }
+    });
+
+    test('rejects non-finite confidence values', () {
+      expect(
+        () => Payload({'confidence': double.nan}).real('confidence'),
+        throwsA(isA<FieldError>()),
+      );
+    });
+
     test('caps lists and clamps numbers', () {
       final payload = Payload({
         'steps': List.generate(200, (i) => 'step $i'),
@@ -72,6 +96,7 @@ void main() {
       expect(result.text, isNot(contains('98765')));
       expect(result.text, isNot(contains('zaid@example.com')));
       expect(result.text, isNot(contains('1234 5678')));
+      expect(result.replaced, contains('AADHAAR×1'));
       expect(result.text, isNot(contains('ABCDE1234F')));
       expect(result.replaced, containsAll(<String>['PHONE×1', 'EMAIL×1']));
       expect(result.didRedact, isTrue);
@@ -176,7 +201,7 @@ void main() {
       final text = String.fromCharCodes(
         pdf.build(header: 'x', footer: 'y').buffer.asUint8List(),
       );
-      expect(text, contains(r'a \(paren\), a \backslash, and \) here'));
+      expect(text, contains(r'a \(paren\), a \\backslash, and \) here'));
     });
   });
 }
@@ -195,10 +220,15 @@ void expectSchemaAgainstModels(Map<String, Object?> schema, String which) {
     }
   }
 
+  // Provider-only inputs drive policy or citation selection; they are not
+  // stored fields and must not be added to a database model just to pass a test.
+  final providerOnly = which == 'triage'
+      ? {'keyFacts', 'domainConfidence', 'statuteUnclear'}
+      : <String>{};
   final properties = (schema['properties'] as Map?) ?? const {};
   final missing = <String>[
     for (final key in properties.keys.cast<String>())
-      if (!declared.contains(key)) key,
+      if (!declared.contains(key) && !providerOnly.contains(key)) key,
   ];
   expect(missing, isEmpty,
       reason: '$which schema declares $missing but no model field does');

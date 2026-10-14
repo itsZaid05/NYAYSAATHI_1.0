@@ -4,7 +4,6 @@ import 'package:serverpod/serverpod.dart';
 
 import '../generated/protocol.dart';
 import '../services/config.dart';
-import '../services/engine.dart';
 
 /// Starts a case file, takes the answers, and re-triages as they arrive.
 ///
@@ -27,7 +26,7 @@ class IntakeEndpoint extends Endpoint {
     }
 
     final now = DateTime.now().toUtc();
-    final narrative =
+    final clipped =
         text.length > _maxNarrative ? text.substring(0, _maxNarrative) : text;
 
     // `reference` is unique, so a collision is retried rather than shown.
@@ -38,7 +37,7 @@ class IntakeEndpoint extends Endpoint {
           session,
           LegalCase(
             reference: _reference(),
-            narrative: narrative,
+            narrative: clipped,
             createdAt: now,
             updatedAt: now,
           ),
@@ -54,14 +53,27 @@ class IntakeEndpoint extends Endpoint {
       IntakeTurn(
         caseId: saved.id!,
         role: 'user',
-        content: row.narrative,
+        content: saved.narrative,
         questionId: 'narrative',
         createdAt: now,
       ),
     );
 
     final engine = EngineConfig.forSession(session);
-    return engine.triage(session, caseId: saved.id!, narrative: row.narrative);
+    try {
+      return await engine.triage(
+        session,
+        caseId: saved.id!,
+        reference: saved.reference,
+        narrative: saved.narrative,
+      );
+    } on Exception catch (error) {
+      session.log('initial triage failed (${error.runtimeType})', level: LogLevel.warning);
+      throw AdviceUnavailableException(
+        reason: 'The description was saved, but triage could not finish. Try again.',
+        caseReference: saved.reference,
+      );
+    }
   }
 
   /// Replaces the description on an existing file and decides again, so editing
@@ -168,8 +180,8 @@ class IntakeEndpoint extends Endpoint {
     );
   }
 
-  /// The transcript, oldest first — shown in the UI so the user can see exactly
-  /// what the model was told (with their identifiers already removed).
+  /// Original stored transcript, oldest first. Redaction is applied separately
+  /// before model calls; these rows may still contain personal information.
   Future<List<IntakeTurn>> transcript(Session session, String reference) async {
     final legalCase = await _byReference(session, reference);
     return IntakeTurn.db.find(

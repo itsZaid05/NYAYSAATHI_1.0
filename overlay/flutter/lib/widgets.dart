@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// The four drawing primitives every screen uses. Kept in one file so the two
+/// The shared drawing primitives every screen uses. Kept in one file so the two
 /// screens stay readable and the visual language cannot drift.
 
 class SectionCard extends StatelessWidget {
@@ -147,12 +147,19 @@ class StageChips extends StatelessWidget {
     'validating': 'Checking citations',
     'persisting': 'Saving your file',
     'ready': 'Ready',
-    'failed': 'Could not finish',
   };
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    if (reached == 'failed') {
+      return Chip(
+        avatar: Icon(Icons.error_outline, color: theme.colorScheme.onErrorContainer),
+        backgroundColor: theme.colorScheme.errorContainer,
+        label: Text('Could not finish — retry when ready',
+            style: TextStyle(color: theme.colorScheme.onErrorContainer)),
+      );
+    }
     final keys = _order.keys.toList();
     final at = reached == null ? -1 : keys.indexOf(reached!);
     return Wrap(
@@ -178,7 +185,7 @@ class StageChips extends StatelessWidget {
                     height: 11,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                else if (i < at || keys[i] == 'ready')
+                else if (i < at || (i == at && keys[i] == 'ready'))
                   Icon(Icons.check, size: 13, color: theme.colorScheme.onPrimaryContainer)
                 else
                   Icon(Icons.circle_outlined,
@@ -212,27 +219,30 @@ class ModelNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final live = model != null;
+    final live = model != null && model != 'fixture';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
       decoration: BoxDecoration(
-        color: live ? theme.colorScheme.secondaryContainer : const Color(0xFFFFF1C9),
+        color: live ? theme.colorScheme.secondaryContainer : theme.colorScheme.tertiaryContainer,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          Icon(live ? Icons.auto_awesome_outlined : Icons.wifi_off_rounded, size: 16),
+          Icon(live ? Icons.auto_awesome_outlined : Icons.wifi_off_rounded,
+              size: 16, color: live ? theme.colorScheme.onSecondaryContainer : theme.colorScheme.onTertiaryContainer),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               live
-                  ? 'Written by $model (prompt ${promptVersion ?? '?'}), from the '
-                      'statute index below. Legal information, not legal advice - no '
-                      'outcome is promised.'
-                  : 'The model is not answering right now, so this plan came from '
-                      'recorded sample answers. Everything else (retrieval, citations, '
-                      'storage) is the real code path.',
-              style: theme.textTheme.bodySmall,
+                  ? 'AI-assisted by $model · prompt ${promptVersion ?? '?'}. '
+                      'Check the facts and sources. Legal information, not legal advice; '
+                      'no outcome is promised.'
+                  : 'SAMPLE MODE · Hand-written workplace example, not a live AI response '
+                      'or guidance tailored to your case. Retrieval and storage use '
+                      'the same engine. Legal information, not legal advice.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: live ? theme.colorScheme.onSecondaryContainer : theme.colorScheme.onTertiaryContainer,
+              ),
             ),
           ),
         ],

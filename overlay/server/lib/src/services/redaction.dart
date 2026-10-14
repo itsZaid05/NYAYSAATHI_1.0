@@ -14,9 +14,9 @@ class Redacted {
 }
 
 final _patterns = <_Rule>[
-  _Rule('PHONE', RegExp(r'(?:(?:\+|00)91[\s-]?)?(?:\d[\s-]?){10}(?!\d)')),
+  _Rule('AADHAAR', RegExp(r'\b\d{4}[ -]?\d{4}[ -]?\d{4}\b')),
+  _Rule('PHONE', RegExp(r'(?<!\d)(?:(?:\+|00)91[ -]?)?[6-9](?:[ -]?\d){9}(?![ -]?\d)')),
   _Rule('EMAIL', RegExp(r'[\w.+-]+@[\w-]+\.[\w.-]{2,}')),
-  _Rule('AADHAAR', RegExp(r'\b(?:\d{4}[ -]?){3}\d{4}\b')),
   _Rule('PAN', RegExp(r'\b[A-Z]{5}\d{4}[A-Z]\b')),
   _Rule('ACCOUNT', RegExp(r'\b(?:\d[ -]?){9,16}\b')),
   _Rule('DOB', RegExp(r'\b\d{1,2}[/-](?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|[1-9]|1[0-2])[/-]\d{2,4}\b', caseSensitive: false)),

@@ -46,8 +46,10 @@ class AdviceEndpoint extends Endpoint {
 
   /// Live stages, from `case_<reference>`.
   Stream<AdviceProgress> watch(Session session, String reference) async* {
-    yield* session.messages
-        .createStream<AdviceProgress>('${AdviceEngine.channelPrefix}$reference');
+    final legalCase = await _byReference(session, reference);
+    yield* session.messages.createStream<AdviceProgress>(
+      '${AdviceEngine.channelPrefix}${legalCase.reference}',
+    );
   }
 
   /// The last triage, so the plan screen can show what the case was sorted into.
@@ -70,8 +72,7 @@ class AdviceEndpoint extends Endpoint {
       await Advice.db.updateRow(
         session,
         rows.first
-          ..pdfBytes = bytes
-          ..updatedAt = DateTime.now().toUtc(),
+          ..pdfBytes = bytes,
       );
     }
     session.log('built a ${bytes.lengthInBytes} byte brief for $reference');

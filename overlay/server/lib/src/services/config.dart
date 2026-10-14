@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:serverpod/serverpod.dart';
+import '../generated/serverpod.dart';
+import '../generated/protocol.dart';
 
 import '../corpus/fixture_answers.dart';
 import 'engine.dart';
@@ -20,9 +21,12 @@ class EngineConfig {
 
   static String? apiKey(Session session) {
     final fromEnv = Platform.environment['GEMINI_API_KEY'];
-    if (fromEnv != null && fromEnv.isNotEmpty) return fromEnv;
+    if (fromEnv != null && fromEnv.trim().isNotEmpty) return fromEnv.trim();
     final fromFile = session.serverpod.getPassword(keyName);
-    return (fromFile == null || fromFile.isEmpty) ? null : fromFile;
+    if (fromFile == null || fromFile.trim().isEmpty || fromFile.trim().startsWith('<')) {
+      return null;
+    }
+    return fromFile.trim();
   }
 
   static String get model {
@@ -30,7 +34,7 @@ class EngineConfig {
     return (fromEnv == null || fromEnv.isEmpty) ? defaultModel : fromEnv;
   }
 
-  /// Set `NYAY_OFFLINE=1` to run the whole product against recorded answers:
+  /// Set `NYAY_OFFLINE=1` to run the whole product against hand-written samples:
   /// same validation, same retrieval, same storage, same UI — and a visible
   /// banner, so nobody mistakes it for the live model.
   static bool get offline => Platform.environment['NYAY_OFFLINE'] == '1';
@@ -40,8 +44,8 @@ class EngineConfig {
     if (key == null || offline) {
       session.log(
         key == null
-            ? 'no $keyName configured — answering from recorded fixtures'
-            : 'NYAY_OFFLINE=1 — answering from recorded fixtures',
+            ? 'no $keyName configured — answering from hand-written fixtures'
+            : 'NYAY_OFFLINE=1 — answering from hand-written fixtures',
         level: LogLevel.info,
       );
       return AdviceEngine(provider: FixtureModel(kFixtureAnswers));

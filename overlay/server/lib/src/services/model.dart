@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 ///
 /// Two implementations exist: [GeminiProvider], which speaks to
 /// `generativelanguage.googleapis.com`, and [FixtureModel], which answers from
-/// recorded JSON. The engine's validation, retrieval and storage run identically
+/// hand-written sample JSON. The engine's validation, retrieval and storage run identically
 /// for both, which is what makes the offline mode honest rather than a demo
 /// facade.
 abstract class ModelProvider {
@@ -57,13 +57,13 @@ class GeminiProvider implements ModelProvider {
     this.useSearchGrounding = true,
     this.timeout = const Duration(seconds: 90),
     http.Client? client,
-  }) : _client = client ?? http.Client();
+  }) : _client = client;
 
   final String apiKey;
   final String model;
   final bool useSearchGrounding;
   final Duration timeout;
-  final http.Client _client;
+  final http.Client? _client;
 
   @override
   String get name => model;
@@ -101,18 +101,16 @@ class GeminiProvider implements ModelProvider {
     final uri = Uri.https(
       'generativelanguage.googleapis.com',
       '/v1beta/models/$model:generateContent',
-      {'key': apiKey},
     );
 
     http.Response response;
     try {
-      response = await _client
-          .post(uri, headers: const {'Content-Type': 'application/json'}, body: jsonEncode(body))
+      response = await _post(uri, body)
           .timeout(timeout);
     } on TimeoutException {
       throw const ModelFailure('the model took too long to answer');
-    } on http.ClientException catch (e) {
-      throw ModelFailure('could not reach the model API: ${e.message}');
+    } on http.ClientException {
+      throw const ModelFailure('could not reach the model API');
     }
 
     String? degraded;
@@ -122,8 +120,7 @@ class GeminiProvider implements ModelProvider {
     if (response.statusCode == 400 && useSearchGrounding) {
       body.remove('tools');
       try {
-        response = await _client
-            .post(uri, headers: const {'Content-Type': 'application/json'}, body: jsonEncode(body))
+        response = await _post(uri, body)
             .timeout(timeout);
         degraded = 'web search grounding was refused; answered from the statute index only';
       } on Object {
@@ -132,14 +129,18 @@ class GeminiProvider implements ModelProvider {
     }
 
     if (response.statusCode != 200) {
-      final detail = _errorText(response.body);
       throw ModelFailure(
-        'the model API returned ${response.statusCode}$detail',
+        'the model API returned ${response.statusCode}; check server configuration and quota',
         retryAfterSeconds: response.statusCode == 429 ? 30 : null,
       );
     }
 
-    final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+    Object? decoded;
+    try {
+      decoded = jsonDecode(utf8.decode(response.bodyBytes));
+    } on FormatException {
+      throw const ModelFailure('the model API returned malformed JSON');
+    }
     if (decoded is! Map<String, Object?>) {
       throw const ModelFailure('the model API returned something unreadable');
     }
@@ -154,10 +155,16 @@ class GeminiProvider implements ModelProvider {
         'no answer returned${blocked is Map ? ' (${blocked['blockReason']})' : ''}',
       );
     }
-    final candidate = candidates.first as Map<String, Object?>;
-    final parts = (candidate['content']?['parts'] as List?) ?? const [];
+    final candidate = candidates.first;
+    if (candidate is! Map<String, Object?>) {
+      throw const ModelFailure('the model returned a malformed candidate');
+    }
+    final content = candidate['content'];
+    final rawParts = content is Map<String, Object?> ? content['parts'] : null;
+    final parts = rawParts is List ? rawParts : const [];
     final text = parts
         .whereType<Map<String, Object?>>()
+        .where((p) => p['thought'] != true)
         .map((p) => p['text'])
         .whereType<String>()
         .join('\n')
@@ -205,18 +212,21 @@ class GeminiProvider implements ModelProvider {
     }
   }
 
-  static String _errorText(String raw) {
-    try {
-      final json = jsonDecode(raw);
-      final message = (json is Map ? json['error']?['message'] : null) as String?;
-      return message == null ? '' : ' — ${message.length > 200 ? '${message.substring(0, 200)}…' : message}';
-    } on Object {
-      return '';
-    }
+  Future<http.Response> _post(Uri uri, Map<String, Object?> body) {
+    final headers = {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey,
+    };
+    // The top-level helper closes its client. An injected test client remains
+    // owned by the caller. Keys stay out of request URLs and exception messages.
+    return _client == null
+        ? http.post(uri, headers: headers, body: jsonEncode(body))
+        : _client.post(uri, headers: headers, body: jsonEncode(body));
   }
+
 }
 
-/// Answers from JSON recorded from real model calls.
+/// Answers from hand-written JSON samples, not live model recordings.
 ///
 /// Matched on the system prompt, because that is the only stable difference
 /// between the two calls the engine makes. An unknown prompt is a failure, not a
@@ -246,8 +256,8 @@ class FixtureModel implements ModelProvider {
     }
     final answer = matched == null ? null : answers[matched];
     if (answer == null) {
-      throw ModelFailure('no recorded answer for this prompt (${system.hashCode})');
+      throw ModelFailure('no sample answer for this prompt (${system.hashCode})');
     }
-    return ModelJson(answer, queries: const ['recorded']);
+    return ModelJson(answer, queries: const ['hand-written sample; no live model call']);
   }
 }
