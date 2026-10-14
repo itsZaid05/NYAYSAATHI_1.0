@@ -1,0 +1,9 @@
+### Published on `case_<reference>` while a plan is built. Ephemeral by design:
+### the stored row is the truth, this only tells the client when to read it again.
+class: AdviceProgress
+fields:
+  reference: String
+  adviceId: int?
+  stage: AdviceStage
+  detail: String
+  at: DateTime

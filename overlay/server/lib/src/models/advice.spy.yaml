@@ -1,0 +1,26 @@
+### A generated plan. Written by the engine in one pass at the end, so a client
+### that reads this table either sees a complete plan or a failure with a reason.
+class: Advice
+table: advice
+
+fields:
+  caseId: int, relation(parent=legal_case)
+  status: AdviceStatus, default=queued
+  headline: String?
+  whatYouCanDo: List<String>?
+  steps: List<NextStep>?
+  authorities: List<Authority>?
+  drafts: List<DraftDocument>?
+  expectations: String?
+  referralNote: String?
+  model: String?
+  promptVersion: String?
+  groundingQueries: List<String>?
+  errorMessage: String?
+  pdfBytes: ByteData?
+  createdAt: DateTime
+  updatedAt: DateTime
+
+indexes:
+  advice_case_idx:
+    fields: caseId, status

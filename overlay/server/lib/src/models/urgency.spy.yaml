@@ -1,0 +1,8 @@
+### When this needs to happen. Emergency and urgent are the two values that
+### change the UI: they add the escalation banner and the deadline warning.
+enum: Urgency
+values:
+  - emergency
+  - urgent
+  - soon
+  - planning

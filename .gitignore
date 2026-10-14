@@ -1,0 +1,24 @@
+# Secrets. The key stays out of git; the template next to it is what ships.
+**/config/passwords.yaml
+.env
+*.local.yaml
+
+# Toolchain output.
+**/.dart_tool/
+**/.flutter-plugins*
+**/build/
+**/.serverpod/
+**/coverage/
+
+# Local environments, credentials, editor and platform artifacts.
+.venv/
+__pycache__/
+*.py[cod]
+.env.*
+.DS_Store
+.idea/
+.vscode/
+**/ephemeral/
+**/.symlinks/
+**/Pods/
+*.bundle

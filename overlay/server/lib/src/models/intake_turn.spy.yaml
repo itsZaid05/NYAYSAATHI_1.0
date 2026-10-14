@@ -1,0 +1,15 @@
+### Every message in the intake, in order. The transcript is the evidence trail
+### for the plan: rebuilding the case never needs the model to remember anything.
+class: IntakeTurn
+table: intake_turn
+
+fields:
+  caseId: int, relation(parent=legal_case)
+  role: String
+  content: String
+  questionId: String?
+  createdAt: DateTime
+
+indexes:
+  intake_turn_case_idx:
+    fields: caseId

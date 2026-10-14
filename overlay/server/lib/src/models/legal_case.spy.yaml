@@ -1,0 +1,27 @@
+class: LegalCase
+table: legal_case
+
+fields:
+  reference: String
+  narrative: String
+  domain: LegalDomain, default=other
+  urgency: Urgency, default=soon
+  stage: CaseStage, default=intake
+  summary: String?
+  riskScore: int, default=0
+  riskFactors: List<String>?
+  missingEvidence: List<String>?
+  completeness: int, default=0
+  timeSensitivity: String?
+  safetyEscalation: bool, default=false
+  promptVersion: String?
+  model: String?
+  createdAt: DateTime
+  updatedAt: DateTime
+
+indexes:
+  case_reference_idx:
+    fields: reference
+    unique: true
+  case_domain_idx:
+    fields: domain, urgency

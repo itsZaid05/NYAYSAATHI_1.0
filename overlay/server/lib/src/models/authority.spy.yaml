@@ -1,0 +1,12 @@
+### A citation the app actually stands behind. `verbatim` is copied from the
+### corpus row, not from the model, and `needsVerification` is the corpus's own
+### flag — the UI shows it rather than hiding it.
+class: Authority
+fields:
+  code: String
+  title: String
+  gist: String
+  verbatim: String?
+  sourceUrl: String
+  needsVerification: bool, default=true
+  source: String

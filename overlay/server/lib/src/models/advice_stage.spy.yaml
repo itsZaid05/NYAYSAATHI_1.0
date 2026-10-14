@@ -1,0 +1,10 @@
+### The stages published on the case's message channel while a plan is written.
+enum: AdviceStage
+values:
+  - queued
+  - retrieving
+  - writing
+  - validating
+  - persisting
+  - ready
+  - failed

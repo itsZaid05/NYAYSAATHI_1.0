@@ -1,0 +1,11 @@
+### What the retriever found, shown on screen so the grounding is inspectable
+### rather than asserted. `matchedBy` is the honest reason a provision appeared.
+class: CorpusHit
+fields:
+  code: String
+  title: String
+  gist: String
+  sourceUrl: String
+  score: double
+  matchedBy: List<String>
+  needsVerification: bool

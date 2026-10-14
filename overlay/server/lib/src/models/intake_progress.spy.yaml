@@ -1,0 +1,8 @@
+class: IntakeProgress
+fields:
+  caseId: int
+  reference: String
+  stage: CaseStage
+  question: IntakeQuestion?
+  turns: int
+  completion: int
