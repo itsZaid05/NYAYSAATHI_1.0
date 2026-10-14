@@ -1,34 +1,30 @@
 #!/usr/bin/env bash
-# One command from wherever you want the project to live:
-#   git clone https://github.com/itsZaid05/nyay-saathi && cd nyay-saathi && ./scripts/bootstrap.sh ../play
-# Creates a Serverpod project in the folder you pass, overlays this repository
-# onto it, and stops there — migrations and the key are yours to do, on purpose.
+# Optional convenience wrapper. For one-command-at-a-time setup, use RUNBOOK.md.
+# Usage: ./scripts/bootstrap.sh ~/nyay-build
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-WORK="${1:-$HOME/nyay-play}"
-NAME=nyay
+WORK="${1:-$HOME/nyay-build}"
 VERSION=4.0.3
 
-for tool in flutter dart python3; do
-  command -v "$tool" >/dev/null || { echo "missing: $tool (see README)"; exit 1; }
+for tool in flutter dart python3 serverpod; do
+  if ! command -v "$tool" >/dev/null; then
+    echo "Missing $tool. See $REPO/docs/RUNBOOK.md; no toolchain was installed or changed." >&2
+    exit 1
+  fi
 done
-flutter --version | head -1
 
-command -v serverpod >/dev/null || {
-  echo "installing serverpod_cli $VERSION"
-  dart pub global activate serverpod_cli "$VERSION"
-  export PATH="$PATH:$HOME/.pub-cache/bin"
-}
-serverpod --version
+CLI_VERSION="$(serverpod --version)"
+if [[ ! "$CLI_VERSION" =~ (^|[^0-9])4\.0\.3([^0-9.]|$) ]]; then
+  echo "Expected Serverpod $VERSION; got: $CLI_VERSION" >&2
+  exit 1
+fi
+if [[ -e "$WORK/nyay" ]]; then
+  echo "Refusing to overwrite $WORK/nyay. Apply the overlay explicitly after saving local fixes." >&2
+  exit 1
+fi
 
 mkdir -p "$WORK"
 cd "$WORK"
-if [ ! -d "$NAME" ]; then
-  serverpod create "$NAME" --template fullstack --database --webapp --ide none
-else
-  echo "reusing $WORK/$NAME"
-fi
-
-cd "$NAME"
-python3 "$REPO/scripts/apply_overlay.py" .
+serverpod create nyay --template fullstack --database --webapp --ide none
+python3 "$REPO/scripts/apply_overlay.py" "$PWD/nyay"

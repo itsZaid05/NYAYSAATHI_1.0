@@ -184,7 +184,7 @@ dart test test/unit
 ```
 
 In `nyay_client/`, run `dart analyze --fatal-infos`. In `nyay_flutter/`, run
-`flutter analyze --fatal-infos`. Resolve every error; formatting alone does not
+`flutter analyze --fatal-infos` and `flutter test`. Resolve every error; formatting alone does not
 fix missing imports, unused variables, or API incompatibilities.
 
 From `~/nyaysaathi`, install the audit dependency in a virtual environment:
@@ -217,7 +217,7 @@ and `overlay/` deliberately; do not overwrite one with stale files.
 Preview the copy first:
 
 ```bash
-rsync -an --exclude '.git' --exclude '.dart_tool' --exclude 'build' --exclude '.serverpod' --exclude '.env*' --exclude 'passwords.yaml' --exclude '.flutter-plugins*' --exclude 'ephemeral' --exclude 'Pods' --exclude '.symlinks' ~/nyay-build/nyay/ ~/nyaysaathi/
+rsync -an --exclude '.git' --exclude '/README.md' --exclude '/.gitignore' --exclude '/docs' --exclude '/scripts' --exclude '/overlay' --exclude '.dart_tool' --exclude 'build' --exclude '.serverpod' --exclude '.env*' --exclude 'passwords.yaml' --exclude '.flutter-plugins*' --exclude 'ephemeral' --exclude 'Pods' --exclude '.symlinks' ~/nyay-build/nyay/ ~/nyaysaathi/
 ```
 
 Review that output, then repeat with `-a` instead of `-an`. Keep `overlay/`,

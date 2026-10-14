@@ -1,7 +1,7 @@
 /// A one-page case brief, written by the server.
 ///
-/// Deliberately not a PDF package: the whole file is the eleven objects below,
-/// and it is valid enough for a reader to print and hand to a lawyer. Offsets in
+/// Deliberately not a PDF package: the whole file is the six objects below,
+/// and is intended for a reader to print and review with a professional. Offsets in
 /// the xref table are computed from the bytes actually written, which is the part
 /// a hand-rolled writer usually gets wrong — so the unit test parses them back.
 import 'dart:convert';
@@ -102,7 +102,7 @@ class PdfBuilder {
       content
         ..writeln('/F1 9 Tf')
         ..writeln('1 0 0 1 ${_num(margin)} ${_num(y)} Tm')
-        ..writeln('(${_escape('(continued on screen — download the full plan from the app)')}) Tj');
+        ..writeln('(${_escape('(Brief shortened. Read the remaining steps and sources in the app.)')}) Tj');
     }
     content.writeln('ET');
 
@@ -123,15 +123,16 @@ class PdfBuilder {
     required double height,
   }) {
     // Objects: 1 catalog, 2 pages, 3 page, 4 contents, 5 font, 6 header/footer text.
+    final furniture = 'BT /F1 8.5 Tf 1 0 0 1 54 ${_num(height - 34)} Tm '
+        '(${_escape(header)}) Tj 1 0 0 1 54 40 Tm (${_escape(footer)}) Tj ET\n';
     final objects = <String>[
       '<< /Type /Catalog /Pages 2 0 R >>',
       '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
       '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${_num(width)} ${_num(height)}] '
-          '/Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>',
+          '/Resources << /Font << /F1 5 0 R >> >> /Contents [4 0 R 6 0 R] >>',
       '<< /Length ${latin1.encode(content).length} >>\nstream\n$content\nendstream',
       '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
-      'BT /F1 8.5 Tf 1 0 0 1 ${_num(54)} ${_num(height - 34)} Tm (${_escape(header)}) Tj '
-          '1 0 0 1 ${_num(54)} 40 Tm (${_escape(footer)}) Tj ET',
+      '<< /Length ${latin1.encode(furniture).length} >>\nstream\n${furniture}endstream',
     ];
 
     final out = BytesBuilder(copy: false)

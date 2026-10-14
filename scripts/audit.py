@@ -10,12 +10,17 @@ import os
 import re
 import sys
 
-import yaml
+try:
+    import yaml
+except ImportError:
+    sys.exit('Missing PyYAML. Install scripts/requirements-dev.txt in a virtual environment; see docs/RUNBOOK.md.')
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SERVER = os.path.join(ROOT, 'overlay', 'server')
 FLUTTER = os.path.join(ROOT, 'overlay', 'flutter')
 problems = []
+if not os.path.isdir(f'{SERVER}/lib/src/models') or not os.path.isdir(f'{FLUTTER}/lib'):
+    sys.exit('Missing overlay sources; run this audit from the submission checkout.')
 
 PRIMITIVES = {'String', 'int', 'double', 'bool', 'DateTime', 'Duration', 'UuidValue',
               'ByteData', 'Object', 'List', 'Map', 'Set'}
@@ -46,11 +51,7 @@ for f, d in parsed.items():
     fields = d.get('fields') or {}
     if 'table' in d:
         fields = {**fields, 'id': None}
-    elif 'id' in fields and 'exception' not in d and 'class' in d:
-        pass
     models[name] = set(fields)
-    if 'table' not in d and 'class' in d:
-        models[name] = set(fields)
     for fname, spec in (d.get('fields') or {}).items():
         spec = '' if spec is None else str(spec)
         for type_name in re.findall(r'[A-Z]\w*', spec):
@@ -58,8 +59,6 @@ for f, d in parsed.items():
                 continue
             if type_name not in models:
                 problems.append(f'{os.path.relpath(f, ROOT)}: {fname} references unknown type {type_name}')
-        if 'default=' in spec and not re.match(r'^(?:\w+,\s*)*default=', spec):
-            pass
         for flag in (s.strip() for s in spec.split(',')):
             if flag in ('unique', 'setParentNull', 'optional'):
                 continue
@@ -79,6 +78,7 @@ files = sorted(
     + glob.glob(f'{SERVER}/test/**/*.dart', recursive=True)
     + glob.glob(f'{SERVER}/bin/*.dart')
     + glob.glob(f'{FLUTTER}/lib/**/*.dart', recursive=True)
+    + glob.glob(f'{FLUTTER}/test/**/*.dart', recursive=True)
 )
 for f in files:
     text = open(f).read()

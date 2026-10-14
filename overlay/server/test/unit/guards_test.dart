@@ -182,6 +182,10 @@ void main() {
       expect(text, startsWith('%PDF-1.4'));
       expect(text.trimRight(), endsWith('%%EOF'));
       expect(text, contains('NyaySaathi test brief'));
+      expect(text, contains('/Contents [4 0 R 6 0 R]'));
+      expect(text, contains('(H) Tj'));
+      expect(text, contains('(F) Tj'));
+      expect(RegExp(r'\nstream\n').allMatches(text), hasLength(2));
 
       final start = int.parse(RegExp(r'startxref\n(\d+)').firstMatch(text)!.group(1)!);
       expect(text.substring(start, start + 4), 'xref');
@@ -194,6 +198,17 @@ void main() {
           reason: 'xref entry at $offset should start an object',
         );
       }
+    });
+
+    test('labels a shortened brief rather than promising another export', () {
+      final pdf = PdfBuilder();
+      for (var i = 0; i < 100; i++) {
+        pdf.body('Step $i: gather the documents and check the official sources.');
+      }
+      final bytes = pdf.build(header: 'Sample', footer: 'Hand-written fixture');
+      final text = String.fromCharCodes(bytes.buffer.asUint8List());
+      expect(text, contains('Brief shortened.'));
+      expect(text, contains('Hand-written fixture'));
     });
 
     test('escapes the characters that would otherwise end a string literal', () {
