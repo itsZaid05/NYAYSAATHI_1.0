@@ -4216,3 +4216,216 @@ a:hover {
     gap: var(--space-sm);
   }
 }
+/* ==========================================================================
+   Class-driven theming (Settings → Appearance)
+   The app previously only reacted to prefers-color-scheme, so the theme
+   buttons in Settings had no effect. These rules make .theme-dark/.theme-light
+   real, and keep [data-color-scheme] (used by the bundled design system) in sync.
+   ========================================================================== */
+html.theme-dark,
+html[data-color-scheme="dark"] {
+  --off-white: #1E1F26;
+  --dark-slate: #F2F3F7;
+  --legal-navy: #C5CAE9;
+
+  --glass-background: rgba(38, 40, 50, 0.72);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 6px 30px rgba(0, 0, 0, 0.45);
+
+  --color-background: #16171d;
+  --color-surface: #22242c;
+  --color-text: #f2f3f7;
+  --color-text-secondary: #a7a9a9;
+  --color-border: rgba(255, 255, 255, 0.14);
+  --color-card-border: rgba(255, 255, 255, 0.12);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+
+  color-scheme: dark;
+}
+
+html.theme-dark body,
+html[data-color-scheme="dark"] body {
+  background: #16171d;
+  color: var(--dark-slate);
+}
+
+html.theme-dark .main-content,
+html[data-color-scheme="dark"] .main-content {
+  background: #16171d;
+}
+
+html.theme-dark .legal-bg-overlay,
+html[data-color-scheme="dark"] .legal-bg-overlay {
+  opacity: 0.04;
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* Surfaces that hardcoded white in the app styles */
+html.theme-dark .modal,
+html.theme-dark .chat-container,
+html.theme-dark .document-preview,
+html.theme-dark .preview-content,
+html.theme-dark .text-content,
+html.theme-dark .video-thumbnail,
+html[data-color-scheme="dark"] .modal,
+html[data-color-scheme="dark"] .chat-container,
+html[data-color-scheme="dark"] .document-preview,
+html[data-color-scheme="dark"] .preview-content,
+html[data-color-scheme="dark"] .text-content,
+html[data-color-scheme="dark"] .video-thumbnail {
+  background: #22242c;
+  color: var(--dark-slate);
+}
+
+html.theme-dark input,
+html.theme-dark select,
+html.theme-dark textarea,
+html[data-color-scheme="dark"] input,
+html[data-color-scheme="dark"] select,
+html[data-color-scheme="dark"] textarea {
+  background: #2a2d38;
+  color: var(--dark-slate);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+html.theme-dark .btn-secondary,
+html[data-color-scheme="dark"] .btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--dark-slate);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+html.theme-dark .urgency-btn,
+html[data-color-scheme="dark"] .urgency-btn {
+  background: #2a2d38;
+  color: var(--dark-slate);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+html.theme-dark .urgency-btn.active,
+html[data-color-scheme="dark"] .urgency-btn.active {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+html.theme-dark .table-header,
+html[data-color-scheme="dark"] .table-header {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+html.theme-dark .table-row:hover,
+html[data-color-scheme="dark"] .table-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+html.theme-dark .message.user-message .message-content,
+html[data-color-scheme="dark"] .message.user-message .message-content {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+html.theme-dark .section-content,
+html.theme-dark .faq-answer,
+html[data-color-scheme="dark"] .section-content,
+html[data-color-scheme="dark"] .faq-answer {
+  color: rgba(242, 243, 247, 0.78);
+}
+
+html.theme-dark .setting-item,
+html.theme-dark .faq-item,
+html[data-color-scheme="dark"] .setting-item,
+html[data-color-scheme="dark"] .faq-item {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Light mode pins the palette even if the OS prefers dark */
+html.theme-light {
+  color-scheme: light;
+}
+
+html.theme-light body {
+  background: var(--off-white);
+  color: var(--dark-slate);
+}
+
+/* ==========================================================================
+   Presentation-only PII masking (Documents)
+   Redaction used to rewrite the visible text with block characters, which
+   destroyed the underlying name. A class keeps the data intact.
+   ========================================================================== */
+#documentsTable.pii-masked .col-name span {
+  filter: blur(6px);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#documentsTable.pii-masked .col-name {
+  position: relative;
+}
+
+#documentsTable.pii-masked .col-name::after {
+  content: 'masked on screen only';
+  position: absolute;
+  right: 0;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--color-gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Draft editing (AI Insights → generated document) */
+.preview-content[contenteditable="true"] {
+  outline: 2px dashed var(--primary-color);
+  outline-offset: 8px;
+  border-radius: var(--radius-sm);
+  min-height: 80px;
+}
+
+/* Data-driven list states */
+.empty-state i {
+  display: block;
+  margin-bottom: var(--space-sm);
+}
+
+.lawyer-rating .spec-tag {
+  margin-left: auto;
+  background: rgba(0, 209, 193, 0.12);
+  color: var(--accent-color);
+}
+
+/* Keyboard-only focus rings (initializeAccessibility toggles this class) */
+body.keyboard-navigation :focus {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+/* The floating assistant is an in-app tool: hide it on the login screen */
+.ai-assistant-float {
+  display: none;
+}
+
+body.app-active .ai-assistant-float {
+  display: block;
+}
+
+.upload-progress {
+  height: 4px;
+  margin-top: 6px;
+  background: rgba(90, 49, 244, 0.15);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.upload-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--primary-gradient);
+  border-radius: var(--radius-full);
+  transition: width 160ms linear;
+}

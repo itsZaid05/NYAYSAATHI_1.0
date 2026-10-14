@@ -44,7 +44,7 @@
                 </div>
                 
                 <div class="privacy-footer">
-                    <p><i class="fas fa-shield-alt"></i> Your privacy is our priority. No personal details required to start.</p>
+                    <p><i class="fas fa-shield-alt"></i> No account, no upload, no server: this demo keeps everything in your browser.</p>
                     <div class="language-toggle">
                         <button class="lang-btn active" data-lang="en">English</button>
                         <button class="lang-btn" data-lang="hi">हिंदी</button>
@@ -144,6 +144,9 @@
                             <h1>Dashboard</h1>
                             <p>Overview of your legal journey</p>
                         </div>
+                        <button class="btn btn-secondary" onclick="showNotifications()" style="margin-left: auto;">
+                            <i class="fas fa-bell"></i> Alerts
+                        </button>
                     </div>
                 </div>
                 
@@ -159,6 +162,7 @@
                                 <div class="widget-menu-dropdown hidden">
                                     <a href="#" onclick="exportWidget('case-status', 'csv')">Export CSV</a>
                                     <a href="#" onclick="exportWidget('case-status', 'pdf')">Export PDF</a>
+                                    <a href="#" onclick="toggleWidgetVisibility('case-status')">Hide widget</a>
                                 </div>
                             </div>
                         </div>
@@ -189,6 +193,7 @@
                                 <div class="widget-menu-dropdown hidden">
                                     <a href="#" onclick="exportWidget('next-steps', 'csv')">Export CSV</a>
                                     <a href="#" onclick="exportWidget('next-steps', 'pdf')">Export PDF</a>
+                                    <a href="#" onclick="toggleWidgetVisibility('next-steps')">Hide widget</a>
                                 </div>
                             </div>
                         </div>
@@ -224,6 +229,7 @@
                                 <div class="widget-menu-dropdown hidden">
                                     <a href="#" onclick="exportWidget('documents', 'csv')">Export CSV</a>
                                     <a href="#" onclick="exportWidget('documents', 'pdf')">Export PDF</a>
+                                    <a href="#" onclick="toggleWidgetVisibility('documents')">Hide widget</a>
                                 </div>
                             </div>
                         </div>
@@ -258,6 +264,7 @@
                                 <div class="widget-menu-dropdown hidden">
                                     <a href="#" onclick="exportWidget('lawyer-response', 'csv')">Export CSV</a>
                                     <a href="#" onclick="exportWidget('lawyer-response', 'pdf')">Export PDF</a>
+                                    <a href="#" onclick="toggleWidgetVisibility('lawyer-response')">Hide widget</a>
                                 </div>
                             </div>
                         </div>
@@ -277,6 +284,7 @@
                                 <div class="widget-menu-dropdown hidden">
                                     <a href="#" onclick="exportWidget('risk-assessment', 'csv')">Export CSV</a>
                                     <a href="#" onclick="exportWidget('risk-assessment', 'pdf')">Export PDF</a>
+                                    <a href="#" onclick="toggleWidgetVisibility('risk-assessment')">Hide widget</a>
                                 </div>
                             </div>
                         </div>
@@ -312,6 +320,7 @@
                                 <div class="widget-menu-dropdown hidden">
                                     <a href="#" onclick="exportWidget('topic-heatmap', 'csv')">Export CSV</a>
                                     <a href="#" onclick="exportWidget('topic-heatmap', 'pdf')">Export PDF</a>
+                                    <a href="#" onclick="toggleWidgetVisibility('topic-heatmap')">Hide widget</a>
                                 </div>
                             </div>
                         </div>
@@ -349,7 +358,7 @@
                 
                 <!-- Add Widget Button -->
                 <button class="btn btn-secondary" onclick="showAddWidgetModal()" style="position: fixed; bottom: 120px; right: 32px; z-index: 100; border-radius: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                    <i class="fas fa-plus-circle"></i> Add Widget
+                    <i class="fas fa-sliders-h"></i> Customize Widgets
                 </button>
             </div>
 
@@ -453,7 +462,7 @@
                         </div>
                         <div class="privacy-reminder">
                             <i class="fas fa-shield-alt"></i>
-                            <span>Your conversation is encrypted and private</span>
+                            <span>Demo build: your answers stay in this browser only</span>
                         </div>
                     </div>
                 </div>
@@ -480,148 +489,72 @@
                 <div class="case-summary-container glass-card">
                     <div class="case-header">
                         <div class="case-id-section">
-                            <span class="case-id-badge">Case ID: NS-2025-001</span>
-                            <span class="risk-indicator medium">Medium Risk</span>
-                            <span class="urgency-indicator high">High Urgency</span>
+                            <span class="case-id-badge" id="caseIdBadge">Case ID: NS-2025-001</span>
+                            <span class="risk-indicator medium" id="caseRiskBadge">Awaiting triage</span>
+                            <span class="urgency-indicator high" id="caseUrgencyBadge">Urgency: not set</span>
                         </div>
-                        <div class="case-tags">
+                        <div class="case-tags" id="caseTags">
                             <span class="case-tag">Workplace Harassment</span>
-                            <span class="case-tag">POSH Act 2013</span>
                         </div>
                     </div>
-                    
-                    <div class="case-tabs">
-                        <button class="tab-btn active" onclick="switchCaseTab('overview')">Overview</button>
-                        <button class="tab-btn" onclick="switchCaseTab('timeline')">Timeline</button>
-                        <button class="tab-btn" onclick="switchCaseTab('legal')">Legal Framework</button>
-                        <button class="tab-btn" onclick="switchCaseTab('goals')">Goals</button>
+
+                    <div class="case-tabs" role="tablist">
+                        <button class="tab-btn active" data-tab="overview" role="tab">Overview</button>
+                        <button class="tab-btn" data-tab="timeline" role="tab">Timeline</button>
+                        <button class="tab-btn" data-tab="legal" role="tab">Legal Framework</button>
+                        <button class="tab-btn" data-tab="goals" role="tab">Goals</button>
                     </div>
-                    
+
                     <div class="tab-content">
-                        <div class="tab-panel active" id="overview-panel">
+                        <div class="tab-panel active" id="overview-panel" role="tabpanel">
                             <h3>Case Overview</h3>
-                            <div class="case-facts">
-                                <div class="fact-item">
-                                    <strong>Situation:</strong>
-                                    <p>Workplace harassment by supervisor involving inappropriate comments and behavior over 3-month period.</p>
-                                </div>
-                                <div class="fact-item">
-                                    <strong>Key Parties:</strong>
-                                    <p>Employee (complainant), Supervisor (accused), HR Department, Witnesses (2)</p>
-                                </div>
-                                <div class="fact-item">
-                                    <strong>Evidence Available:</strong>
-                                    <p>Email correspondence, witness statements, incident log, company policies</p>
-                                </div>
-                            </div>
-                            
+                            <div class="case-facts" id="caseFacts"></div>
+
                             <div class="quality-indicators">
                                 <div class="quality-item">
                                     <span class="quality-label">Completeness Score</span>
                                     <div class="quality-bar">
-                                        <div class="quality-fill" style="width: 85%"></div>
+                                        <div class="quality-fill" id="caseQualityFill" style="width: 0%"></div>
                                     </div>
-                                    <span class="quality-value">85%</span>
+                                    <span class="quality-value" id="caseQualityValue">0%</span>
                                 </div>
-                                <div class="quality-alerts">
-                                    <div class="alert-item info">
-                                        <i class="fas fa-info-circle"></i>
-                                        <span>Consider obtaining additional witness statements</span>
-                                    </div>
-                                </div>
+                                <div class="quality-alerts" id="caseQualityAlerts"></div>
                             </div>
                         </div>
-                        
-                        <div class="tab-panel" id="timeline-panel">
+
+                        <div class="tab-panel" id="timeline-panel" role="tabpanel">
                             <h3>Case Timeline</h3>
-                            <div class="timeline-container">
-                                <div class="timeline-event">
-                                    <div class="timeline-date">June 2025</div>
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-description">
-                                        <strong>Initial Incidents</strong>
-                                        <p>First reported instances of inappropriate behavior</p>
-                                    </div>
-                                </div>
-                                <div class="timeline-event">
-                                    <div class="timeline-date">August 2025</div>
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-description">
-                                        <strong>Documentation Began</strong>
-                                        <p>Started maintaining incident log and collecting evidence</p>
-                                    </div>
-                                </div>
-                                <div class="timeline-event current">
-                                    <div class="timeline-date">October 2025</div>
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-description">
-                                        <strong>Legal Consultation</strong>
-                                        <p>Initiated legal guidance process</p>
-                                    </div>
-                                </div>
-                            </div>
+                            <div class="timeline-container" id="caseTimeline"></div>
                         </div>
-                        
-                        <div class="tab-panel" id="legal-panel">
+
+                        <div class="tab-panel" id="legal-panel" role="tabpanel">
                             <h3>Legal Framework</h3>
-                            <div class="legal-sections-summary">
-                                <div class="legal-section-item">
-                                    <div class="section-info">
-                                        <h4>POSH Act 2013</h4>
-                                        <p>Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act</p>
-                                        <div class="last-updated">Last updated: 2024-09-01</div>
-                                    </div>
-                                </div>
-                                <div class="legal-section-item">
-                                    <div class="section-info">
-                                        <h4>IPC Section 354A</h4>
-                                        <p>Sexual harassment and punishment for sexual harassment</p>
-                                        <div class="last-updated">Last updated: 2024-08-15</div>
-                                    </div>
-                                </div>
-                            </div>
+                            <div class="legal-sections-summary" id="caseLegalSections"></div>
                         </div>
-                        
-                        <div class="tab-panel" id="goals-panel">
+
+                        <div class="tab-panel" id="goals-panel" role="tabpanel">
                             <h3>Case Goals &amp; Desired Outcomes</h3>
-                            <div class="goals-list">
-                                <div class="goal-item">
-                                    <i class="fas fa-shield-alt"></i>
-                                    <span>Immediate protection from harassment</span>
-                                </div>
-                                <div class="goal-item">
-                                    <i class="fas fa-gavel"></i>
-                                    <span>Formal disciplinary action against perpetrator</span>
-                                </div>
-                                <div class="goal-item">
-                                    <i class="fas fa-coins"></i>
-                                    <span>Compensation for mental harassment</span>
-                                </div>
-                                <div class="goal-item">
-                                    <i class="fas fa-clipboard-check"></i>
-                                    <span>Workplace policy improvements</span>
-                                </div>
-                            </div>
+                            <div class="goals-list" id="caseGoals"></div>
                         </div>
                     </div>
-                    
+
                     <div class="case-actions">
                         <button class="btn btn-secondary" onclick="editCase()">
-                            <i class="fas fa-edit"></i>
-                            Edit Details
+                            <i class="fas fa-edit"></i> Edit Details
                         </button>
                         <button class="btn btn-primary" onclick="exportCaseSummary('pdf')">
-                            <i class="fas fa-download"></i>
-                            Download PDF
+                            <i class="fas fa-file-pdf"></i> Download PDF
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportCaseSummary('txt')">
+                            <i class="fas fa-file-alt"></i> Download Text
                         </button>
                         <button class="btn btn-primary" onclick="navigateTo('marketplace')">
-                            <i class="fas fa-users"></i>
-                            Find Lawyers
+                            <i class="fas fa-users"></i> Find Lawyers
                         </button>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Marketplace Page -->
             <div class="page-content hidden" id="marketplace-page" style="position: relative; z-index: 1;">
                 <div class="page-header">
@@ -663,198 +596,23 @@
                             <option>Chennai</option>
                         </select>
                         
-                        <div class="fee-range">
+                        <div class="fee-range" id="feeRange">
                             <label>Fee Range: ₹1000 - ₹5000</label>
                             <input type="range" min="1000" max="5000" value="3000" class="fee-slider">
                         </div>
                         
                         <label class="availability-toggle">
-                            <input type="checkbox" checked>
+                            <input type="checkbox">
                             <span>Available Now</span>
                         </label>
                     </div>
                 </div>
                 
-                <div class="lawyers-grid">
-                    <div class="lawyer-card glass-card">
-                        <div class="lawyer-photo">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='%235A31F4'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Lawyer">
-                            <div class="availability-status online"></div>
-                        </div>
-                        
-                        <div class="lawyer-info">
-                            <h3>Advocate Priya Sharma</h3>
-                            <div class="lawyer-rating">
-                                <div class="stars">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <span class="rating-value">4.8</span>
-                            </div>
-                            
-                            <div class="specializations">
-                                <span class="spec-tag">Family Law</span>
-                                <span class="spec-tag">Domestic Violence</span>
-                                <span class="spec-tag">Divorce</span>
-                            </div>
-                            
-                            <div class="lawyer-details">
-                                <div class="detail-item">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>Mumbai, Maharashtra</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-clock"></i>
-                                    <span>Responds in 2 hours</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-rupee-sign"></i>
-                                    <span>₹2000/consultation</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-trophy"></i>
-                                    <span>156 cases won</span>
-                                </div>
-                            </div>
-                            
-                            <div class="lawyer-languages">
-                                <strong>Languages:</strong> English, Hindi, Marathi
-                            </div>
-                        </div>
-                        
-                        <div class="lawyer-actions">
-                            <button class="btn btn-secondary" onclick="viewLawyerProfile('priya-sharma')">
-                                View Profile
-                            </button>
-                            <button class="btn btn-primary" onclick="connectWithLawyer('priya-sharma')">
-                                Connect Now
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="lawyer-card glass-card">
-                        <div class="lawyer-photo">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='%235A31F4'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Lawyer">
-                            <div class="availability-status online"></div>
-                        </div>
-                        
-                        <div class="lawyer-info">
-                            <h3>Advocate Rajesh Kumar</h3>
-                            <div class="lawyer-rating">
-                                <div class="stars">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <span class="rating-value">4.9</span>
-                            </div>
-                            
-                            <div class="specializations">
-                                <span class="spec-tag">Criminal Law</span>
-                                <span class="spec-tag">IPC</span>
-                                <span class="spec-tag">CrPC</span>
-                            </div>
-                            
-                            <div class="lawyer-details">
-                                <div class="detail-item">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>Delhi NCR</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-clock"></i>
-                                    <span>Responds in 1 hour</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-rupee-sign"></i>
-                                    <span>₹3000/consultation</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-trophy"></i>
-                                    <span>203 cases won</span>
-                                </div>
-                            </div>
-                            
-                            <div class="lawyer-languages">
-                                <strong>Languages:</strong> English, Hindi
-                            </div>
-                        </div>
-                        
-                        <div class="lawyer-actions">
-                            <button class="btn btn-secondary" onclick="viewLawyerProfile('rajesh-kumar')">
-                                View Profile
-                            </button>
-                            <button class="btn btn-primary" onclick="connectWithLawyer('rajesh-kumar')">
-                                Connect Now
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="lawyer-card glass-card offline">
-                        <div class="lawyer-photo">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 24 24' fill='%235A31F4'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Lawyer">
-                            <div class="availability-status offline"></div>
-                        </div>
-                        
-                        <div class="lawyer-info">
-                            <h3>Advocate Meena Patel</h3>
-                            <div class="lawyer-rating">
-                                <div class="stars">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star-half-alt"></i>
-                                </div>
-                                <span class="rating-value">4.7</span>
-                            </div>
-                            
-                            <div class="specializations">
-                                <span class="spec-tag">Consumer Rights</span>
-                                <span class="spec-tag">Property Law</span>
-                                <span class="spec-tag">Civil Matters</span>
-                            </div>
-                            
-                            <div class="lawyer-details">
-                                <div class="detail-item">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>Ahmedabad, Gujarat</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-clock"></i>
-                                    <span>Responds in 3 hours</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-rupee-sign"></i>
-                                    <span>₹1500/consultation</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-trophy"></i>
-                                    <span>128 cases won</span>
-                                </div>
-                            </div>
-                            
-                            <div class="lawyer-languages">
-                                <strong>Languages:</strong> English, Hindi, Gujarati
-                            </div>
-                        </div>
-                        
-                        <div class="lawyer-actions">
-                            <button class="btn btn-secondary" onclick="viewLawyerProfile('meena-patel')">
-                                View Profile
-                            </button>
-                            <button class="btn btn-secondary disabled">
-                                Currently Offline
-                            </button>
-                        </div>
-                    </div>
+                <div class="lawyers-grid" id="lawyersGrid">
+                    <!-- Cards render from DemoData.lawyers via renderLawyerCards() -->
                 </div>
             </div>
-            
+
             <!-- Documents Page -->
             <div class="page-content hidden" id="documents-page" style="position: relative; z-index: 1;">
                 <div class="page-header">
@@ -878,14 +636,14 @@
                     <div class="list-header">
                         <h3>Your Documents</h3>
                         <div class="list-controls">
-                            <button class="btn btn-secondary" onclick="togglePIIRedaction()">
+                            <button class="btn btn-secondary" id="piiRedactionBtn" onclick="togglePIIRedaction()" aria-pressed="false">
                                 <i class="fas fa-eye-slash"></i>
                                 Toggle PII Redaction
                             </button>
                         </div>
                     </div>
                     
-                    <div class="documents-table">
+                    <div class="documents-table" id="documentsTable">
                         <div class="table-header">
                             <div class="col-name">Document Name</div>
                             <div class="col-type">Type</div>
@@ -894,89 +652,10 @@
                             <div class="col-status">Status</div>
                             <div class="col-actions">Actions</div>
                         </div>
-                        
-                        <div class="table-row">
-                            <div class="col-name">
-                                <i class="fas fa-file-pdf"></i>
-                                <span>Employment_Contract.pdf</span>
-                            </div>
-                            <div class="col-type">
-                                <span class="doc-type contract">Contract</span>
-                            </div>
-                            <div class="col-date">2025-10-22</div>
-                            <div class="col-size">2.4 MB</div>
-                            <div class="col-status">
-                                <span class="status-badge ready">Ready</span>
-                            </div>
-                            <div class="col-actions">
-                                <button class="action-btn" onclick="viewDocument('contract')"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn" onclick="downloadDocument('contract')"><i class="fas fa-download"></i></button>
-                                <button class="action-btn" onclick="shareDocument('contract')"><i class="fas fa-share"></i></button>
-                                <button class="action-btn danger" onclick="deleteDocument('contract')"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                        
-                        <div class="table-row">
-                            <div class="col-name">
-                                <i class="fas fa-file-pdf"></i>
-                                <span>Email_Evidence.pdf</span>
-                            </div>
-                            <div class="col-type">
-                                <span class="doc-type evidence">Evidence</span>
-                            </div>
-                            <div class="col-date">2025-10-21</div>
-                            <div class="col-size">1.1 MB</div>
-                            <div class="col-status">
-                                <span class="status-badge redacted">Redacted</span>
-                            </div>
-                            <div class="col-actions">
-                                <button class="action-btn" onclick="viewDocument('evidence')"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn" onclick="downloadDocument('evidence')"><i class="fas fa-download"></i></button>
-                                <button class="action-btn" onclick="shareDocument('evidence')"><i class="fas fa-share"></i></button>
-                                <button class="action-btn danger" onclick="deleteDocument('evidence')"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                        
-                        <div class="table-row">
-                            <div class="col-name">
-                                <i class="fas fa-file-word"></i>
-                                <span>Witness_Statement.docx</span>
-                            </div>
-                            <div class="col-type">
-                                <span class="doc-type statement">Statement</span>
-                            </div>
-                            <div class="col-date">2025-10-20</div>
-                            <div class="col-size">856 KB</div>
-                            <div class="col-status">
-                                <span class="status-badge processing">Processing</span>
-                                <div class="processing-spinner"></div>
-                            </div>
-                            <div class="col-actions">
-                                <button class="action-btn disabled"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn disabled"><i class="fas fa-download"></i></button>
-                                <button class="action-btn disabled"><i class="fas fa-share"></i></button>
-                                <button class="action-btn danger" onclick="deleteDocument('statement')"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
+                        <!-- Rows render from AppState.documents via renderDocuments() -->
                     </div>
                 </div>
-                
-                <div class="document-preview glass-card hidden" id="document-preview">
-                    <div class="preview-header">
-                        <h3>Document Preview</h3>
-                        <button class="close-preview" onclick="closeDocumentPreview()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="preview-content">
-                        <div class="ocr-text">
-                            <h4>Extracted Text (OCR)</h4>
-                            <div class="text-content">
-                                <p>This is a sample of extracted text from the document. The OCR system has identified and extracted readable text content for better searchability and analysis.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
             </div>
             
             <!-- Analytics Page -->
@@ -1142,7 +821,7 @@
                             <option value="bail-grounds">Bail Application Grounds</option>
                         </select>
                         
-                        <button class="btn btn-primary" onclick="generateDocument()">
+                        <button class="btn btn-primary" id="generateDocumentBtn" onclick="generateDocument()">
                             <i class="fas fa-magic"></i>
                             Generate Document
                         </button>
@@ -1170,7 +849,7 @@
                 
                 <div class="lawyer-handoff glass-card">
                     <h3>Lawyer Handoff Tools</h3>
-                    <div class="handoff-options">
+                    <div class="handoff-options" id="handoffOptions">
                         <label class="handoff-toggle">
                             <input type="checkbox" checked>
                             <span>Include chat transcript</span>
@@ -1629,7 +1308,7 @@
                     
                     <div class="help-section glass-card">
                         <h3>Contact Support</h3>
-                        <div class="contact-form">
+                        <div class="contact-form" id="supportForm">
                             <div class="form-group">
                                 <label>Subject</label>
                                 <select class="form-select">
@@ -1693,153 +1372,45 @@
                 
                 <div class="story-layout">
                     <div class="story-panel glass-card">
-                        <h3>A Similar Situation</h3>
+                        <h3 id="storyTitle">A Similar Situation</h3>
                         <div class="story-content">
-                            <p><strong>Case Study:</strong> Ramesh faced workplace harassment from his supervisor. He documented incidents over 3 months, including emails and witness statements.</p>
-                            
-                            <div class="story-timeline">
-                                <div class="timeline-item">
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-content">
-                                        <h4>Month 1-3: Documentation</h4>
-                                        <p>Collected emails, witness statements, recorded incidents</p>
-                                    </div>
-                                </div>
-                                <div class="timeline-item">
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-content">
-                                        <h4>Month 4: Formal Complaint</h4>
-                                        <p>Filed complaint with Internal Committee under POSH Act</p>
-                                    </div>
-                                </div>
-                                <div class="timeline-item">
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-content">
-                                        <h4>Month 6: Resolution</h4>
-                                        <p>Committee found allegations substantiated, disciplinary action taken</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
+                            <p id="storySummary"></p>
+
+                            <div class="story-timeline" id="storyTimeline"></div>
+
                             <div class="outcomes-carousel">
                                 <h4>What Typically Happens</h4>
-                                <div class="outcome-cards">
-                                    <div class="outcome-card active">
-                                        <div class="outcome-type success">Favorable</div>
-                                        <p>Compensation awarded, disciplinary action taken</p>
-                                        <small>Timeline: 6 months</small>
-                                    </div>
-                                    <div class="outcome-card">
-                                        <div class="outcome-type warning">Mixed</div>
-                                        <p>Partial resolution, workplace changes implemented</p>
-                                        <small>Timeline: 4-8 months</small>
-                                    </div>
-                                    <div class="outcome-card">
-                                        <div class="outcome-type error">Challenging</div>
-                                        <p>Insufficient evidence, case dismissed</p>
-                                        <small>Timeline: 2-4 months</small>
-                                    </div>
-                                </div>
+                                <div class="outcome-cards" id="outcomeCards"></div>
                                 <div class="carousel-controls">
-                                    <button onclick="previousOutcome()">&lt;</button>
-                                    <button onclick="nextOutcome()">&gt;</button>
+                                    <button onclick="previousOutcome()" aria-label="Previous outcome">&lt;</button>
+                                    <button onclick="nextOutcome()" aria-label="Next outcome">&gt;</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="legal-panel glass-card">
                         <h3>Legal Framework</h3>
-                        
-                        <div class="legal-sections">
-                            <div class="legal-section expandable">
-                                <div class="section-header" onclick="toggleSection('posh-act')">
-                                    <h4>POSH Act 2013</h4>
-                                    <i class="fas fa-chevron-down"></i>
-                                </div>
-                                <div class="section-content" id="posh-act">
-                                    <p>The Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013 provides protection against sexual harassment at workplace.</p>
-                                    <div class="last-updated">Last updated: 2024-09-01</div>
-                                </div>
-                            </div>
-                            
-                            <div class="legal-section expandable">
-                                <div class="section-header" onclick="toggleSection('ipc-354a')">
-                                    <h4>IPC Section 354A</h4>
-                                    <i class="fas fa-chevron-down"></i>
-                                </div>
-                                <div class="section-content" id="ipc-354a">
-                                    <p>Sexual harassment and punishment for sexual harassment. Covers physical contact, unwelcome sexual advances, and demanding sexual favors.</p>
-                                    <div class="last-updated">Last updated: 2024-08-15</div>
-                                </div>
-                            </div>
-                        </div>
-                        
+
+                        <div class="legal-sections" id="storyLegalSections"></div>
+
                         <div class="risk-assessment-visual">
                             <h4>Risk Assessment</h4>
-                            <div class="risk-indicators">
-                                <div class="risk-indicator medium">
-                                    <span class="risk-label">Evidence Quality</span>
-                                    <div class="risk-level">Medium</div>
-                                </div>
-                                <div class="risk-indicator low">
-                                    <span class="risk-label">Legal Complexity</span>
-                                    <div class="risk-level">Low</div>
-                                </div>
-                                <div class="risk-indicator high">
-                                    <span class="risk-label">Timeline Pressure</span>
-                                    <div class="risk-level">High</div>
-                                </div>
-                            </div>
+                            <div class="risk-indicators" id="storyRiskIndicators"></div>
                         </div>
-                        
+
                         <div class="rag-insights">
-                            <h4>RAG Insights</h4>
-                            <div class="insight-item">
-                                <i class="fas fa-gavel"></i>
-                                <div>
-                                    <strong>Past Cases:</strong>
-                                    <p>78% success rate in documented workplace harassment cases</p>
-                                </div>
-                            </div>
-                            <div class="insight-item">
-                                <i class="fas fa-chart-line"></i>
-                                <div>
-                                    <strong>Outcome Patterns:</strong>
-                                    <p>Cases with email evidence have 85% higher success rate</p>
-                                </div>
-                            </div>
-                            <div class="insight-item">
-                                <i class="fas fa-users"></i>
-                                <div>
-                                    <strong>Power Dynamics:</strong>
-                                    <p>Supervisor harassment cases require strong documentation</p>
-                                </div>
-                            </div>
+                            <h4>Guidance From Similar Matters</h4>
+                            <div id="storyInsights"></div>
                         </div>
-                        
+
                         <div class="document-checklist">
                             <h4>Document Requirements</h4>
-                            <div class="checklist-item">
-                                <i class="fas fa-envelope"></i>
-                                <span>Email correspondence</span>
-                            </div>
-                            <div class="checklist-item">
-                                <i class="fas fa-users"></i>
-                                <span>Witness statements</span>
-                            </div>
-                            <div class="checklist-item">
-                                <i class="fas fa-calendar"></i>
-                                <span>Incident timeline</span>
-                            </div>
-                            <div class="checklist-item">
-                                <i class="fas fa-file-contract"></i>
-                                <span>Employment contract</span>
-                            </div>
+                            <div id="storyDocChecklist"></div>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="continue-actions">
                     <button class="btn btn-primary" onclick="navigateTo('case-summary')">
                         Proceed to Case Summary
